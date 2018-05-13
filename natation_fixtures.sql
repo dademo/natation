@@ -1,5 +1,21 @@
+INSERT INTO public.personne VALUES
+(
+	DEFAULT,
+	NULL,
+	'Proprietaire',
+	'Quelqu''un',
+	TO_DATE('15/04/1965', 'dd/mm/yyyy'),
+	TO_DATE('15/04/2015', 'dd/mm/yyyy'),
+	NULL
+);
+
 INSERT INTO public.club VALUES
-(DEFAULT, 'testClub');
+(
+	DEFAULT,
+	(SELECT personne.id FROM personne WHERE nom='PROPRIETAIRE'),
+	'testClub',
+	'32 rue du test 69005 LYON'
+);
 
 INSERT INTO public.personne VALUES
 	(
