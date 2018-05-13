@@ -32,7 +32,7 @@ INSERT INTO public.personne VALUES
 INSERT INTO public.utilisateur VALUES
 	(
 		DEFAULT,
-		(SELECT presonne.id FROM public.personne WHERE personne.nom = 'USER' AND personne.prenom = 'Test'),
+		(SELECT personne.id FROM public.personne WHERE personne.nom = 'USER' AND personne.prenom = 'Test'),
 		'foo@mail.example',
 		'azerty'
 	)

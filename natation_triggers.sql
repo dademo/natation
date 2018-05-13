@@ -56,7 +56,8 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION trig_fct_equipe_jugeCompetition_afterInsert_noteJuryCompetition()
 RETURNS trigger AS $body$
 BEGIN
-	SELECT checkValue_different(NEW.note, NULL, format('La valeur de la note doit être NULL (%s)', NEW.note));
+	PERFORM checkValue_different(NEW.note, NULL, format('La valeur de la note doit être NULL (%s)', NEW.note));
+	RETURN NEW;
 END;
 $body$
 LANGUAGE PLPGSQL;
@@ -169,9 +170,9 @@ BEGIN
 	;
 
 	-- Valudation des valeurs par défaut
-	SELECT checkValue_different(NEW.debut, NULL, 'La valeur de debut n''est pas NULL. Abandon');
-	SELECT checkValue_different(NEW.visionnable, FALSE, 'La valeur de visionnable n''est pas à false. Abandon');
-	SELECT checkValue_different(NEW.penalite, NULL, 'La valeur de la pénalité n''est pas NULL. Abandon');
+	PERFORM checkValue_different(NEW.debut, NULL, 'La valeur de debut n''est pas NULL. Abandon');
+	PERFORM checkValue_different(NEW.visionnable, FALSE, 'La valeur de visionnable n''est pas à false. Abandon');
+	PERFORM checkValue_different(NEW.penalite, NULL, 'La valeur de la pénalité n''est pas NULL. Abandon');
 
 	RETURN NEW;
 END;
@@ -264,7 +265,7 @@ BEGIN
 		equipe_jugeCompetition.id_equipe
 	;
 
-	SELECT checkValue_different(nAvecNotes, 5, format('Tous les juges n''ont pas donné leur note (%s)', nAvecNotes));
+	PERFORM checkValue_different(nAvecNotes, 5, format('Tous les juges n''ont pas donné leur note (%s)', nAvecNotes));
 	RETURN NEW;
 --	IF nAvecNotes <> 5 THEN
 --		RAISE EXCEPTION 'Tous les juges n''ont pas donné leur note (%)', nAvecNotes;
@@ -371,7 +372,7 @@ BEGIN
 		personne.id = NEW.id_personne
 	;
 
-	SELECT checkValue_different(idClub, NULL, format('La personne ne fait pas partie d''un club (%s)', idClub));
+	PERFORM checkValue_different(idClub, NULL, format('La personne ne fait pas partie d''un club (%s)', idClub));
 
 
 	SELECT
@@ -385,7 +386,7 @@ BEGIN
 	GROUP BY club.id
 	;
 
-	SELECT checkValue_different(nClub, 1, format('Les joueurs font partie de plusieurs clubs (%s)', nClub));
+	PERFORM checkValue_different(nClub, 1, format('Les joueurs font partie de plusieurs clubs (%s)', nClub));
 	RETURN NEW;
 END;
 $body$
@@ -437,11 +438,13 @@ BEGIN
 	AND	personne.prenom = NEW.prenom
 	AND	(
 			personne.dateInscription > NEW.dateInscription
-		OR	pesronne.dateFinInscription > NEW.dateInscription
+		OR	personne.dateFinInscription > NEW.dateInscription
 		)
 	;
 
-	SELECT checkValue_different(nRes, 0, format('Une personne est déjà inscrite pour cette période'));
+	PERFORM checkValue_different(nRes, 0, format('Une personne est déjà inscrite pour cette période'));
+
+	RETURN NEW;
 END;
 $body$
 LANGUAGE plpgsql;
