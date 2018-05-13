@@ -1,2 +1,5 @@
-#vim swap
+# Vim swap
 *.swp
+
+# Sortie du script -> cat de tous les fichiers
+natation_cat.sql
