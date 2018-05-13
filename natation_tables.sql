@@ -1,7 +1,3 @@
-------------------------------------------------------------
---        Script Postgre 
-------------------------------------------------------------
-
 -- Ajout de l'extension pgcrypto
 -- voir: https://x-team.com/blog/storing-secure-passwords-with-postgresql/
 -- voir: https://fr.slideshare.net/spjuliano/postgresql-how-to-store-passwords-safely
@@ -297,4 +293,3 @@ ALTER TABLE public.equipe_personne ADD CONSTRAINT fk_equipe_personne_id_personne
 -- Utilisateur_TypeUtilisateur
 ALTER TABLE public.utilisateur_typeUtilisateur ADD CONSTRAINT fk_utilisateurTypeUtilisateur_id_typeUtilisateur FOREIGN KEY (id_typeUtilisateur) REFERENCES public.typeUtilisateur(id);
 ALTER TABLE public.utilisateur_typeUtilisateur ADD CONSTRAINT fk_utilisateurTypeUtilisateur_id_utilisateur FOREIGN KEY (id_utilisateur) REFERENCES public.utilisateur(id);
-
