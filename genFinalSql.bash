@@ -18,13 +18,29 @@ fileList=(
 # Remise à zéro du fichier final
 cat /dev/null > "${outFile}"
 
-for file in ${fileList[@]}; do
-	echoerr "Traitement de: ${file}"
+#for file in ${fileList[@]}; do
+#	echoerr "Traitement de: ${file}"
+#	cat  >> "${outfile}" << EOF
+#------------------------------------------------------------
+#-- fichier: ${file}
+#------------------------------------------------------------
+
+#EOF
+#	cat "${file}" >> "${outfile}"
+#done
+
+for (( i=0; i < ${#fileList[@]}; i++ )); do
+	if [ ! $i -eq 0 ]; then
+		echo "" >> "${outFile}"
+		echo "" >> "${outFile}"
+	fi
+
+	echoerr "${i}. Traitement de: ${fileList[$i]}"
 	cat  >> "${outFile}" << EOF
 ------------------------------------------------------------
--- Fichier: ${file}
+-- fichier: ${fileList[$i]}
 ------------------------------------------------------------
 
 EOF
-	cat "${file}" >> "${outFile}";
+	cat "${fileList[$i]}" >> "${outFile}"
 done
