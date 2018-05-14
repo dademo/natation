@@ -93,7 +93,7 @@ CREATE TABLE public.utilisateur(
 	-- Primary keys
 	id		INT NOT NULL DEFAULT NEXTVAL('seq_utilisateur_id') ,
 	-- Foreign keys
-	id_personne	INT NOT NULL ,
+	id_personne	INT NOT NULL UNIQUE,
 	-- Data
 	mail		VARCHAR (50) NOT NULL UNIQUE ,
 	mdp		VARCHAR (60) NOT NULL ,	--Blowfish algorithm
