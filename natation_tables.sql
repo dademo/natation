@@ -262,8 +262,8 @@ CREATE TABLE public.equipe_personne(
 ------------------------------------------------------------
 CREATE TABLE public.utilisateur_typeUtilisateur(
 	-- Foreign keys
-	id_typeUtilisateur	INT  NOT NULL ,
 	id_utilisateur		INT  NOT NULL ,
+	id_typeUtilisateur	INT  NOT NULL ,
 	-- Constraints
 	CONSTRAINT prk_constraint_est_un PRIMARY KEY (id_typeUtilisateur,id_utilisateur),
 	UNIQUE(id_typeUtilisateur, id_utilisateur)

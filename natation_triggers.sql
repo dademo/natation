@@ -456,6 +456,42 @@ ON personne
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_personne_afterInsertUpdate_inscription();
 
+------------------------------------------------------------
+-- jugeCompetition
+------------------------------------------------------------
+
+-- [[ INSERT | UPDATE ]] --
+-- On vérifie qu'un juge de compétition a bien le rôle de juge
+CREATE OR REPLACE FUNCTION trig_fct_jugeCompetition_afterInsertUpdate_estJuge()
+RETURNS trigger AS $body$
+DECLARE
+	utilisateurId	INTEGER;
+BEGIN
+	SELECT
+		utilisateur.id INTO utilisateurId
+	FROM utilisateur
+	INNER JOIN utilisateur_typeUtilisateur
+		ON utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id
+	INNER JOIN typeUtilisateur
+		ON typeUtilisateur.id = utilisateur_typeUtilisateur.id_typeUtilisateur
+	WHERE
+		typeUtilisateur.nom = 'Juge'
+	AND	utilisateur.id = NEW.id_utilisateur
+	;
+
+	PERFORM checkValue_different(utilisateurId, NEW.id_utilisateur, format('Cet utilisateur n''est pas un juge (%s)', NEW.id_utilisateur));
+
+	RETURN NEW;
+END;
+$body$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trig_jugeCompetition_afterInsertUpdate_estJuge ON jugeCompetition;
+CREATE TRIGGER trig_jugeCompetition_afterInsertUpdate_estJuge
+BEFORE INSERT OR UPDATE
+ON jugeCompetition
+FOR EACH ROW
+EXECUTE PROCEDURE trig_fct_jugeCompetition_afterInsertUpdate_estJuge();
 
 -- [[ Vues ]] --
 
