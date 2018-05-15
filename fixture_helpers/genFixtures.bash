@@ -26,6 +26,8 @@ fileList=(
 	genEquipe_jugeCompetition.py
 	updateHeureDebut.py
 	updateNotes.py
+	updateEquipePenalite.py
+	updateEquipeVisionnable.py
 )
 
 # Remise à zéro du fichier final

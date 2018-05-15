@@ -21,7 +21,9 @@ DECLARE
 	usrPwd	VARCHAR := NULL;
 BEGIN
 	SELECT
-		utilisateur.mdp INTO usrPwd
+		utilisateur.mdp
+	INTO
+		usrPwd
 	FROM utilisateur
 	INNER JOIN personne
 		-- La personne est toujours inscrite
@@ -58,7 +60,9 @@ DECLARE
 	idClub	INTEGER;
 BEGIN
 	SELECT
-		personne.id_club INTO idClub
+		personne.id_club
+	INTO
+		idClub
 	FROM
 		equipe_personne
 	INNER JOIN personne
@@ -104,7 +108,9 @@ BEGIN
 			jugeCompetition.id
 	)
 	SELECT
-		ARRAY_AGG(jugeCompetition_id) INTO toReturn
+		ARRAY_AGG(jugeCompetition_id)
+	INTO
+		toReturn
 	FROM RES
 	;
 
@@ -130,7 +136,9 @@ DECLARE
 BEGIN
 	/*
 	SELECT
-		equipe_jugeCompetition.id_jugeCompetition INTO toReturn
+		equipe_jugeCompetition.id_jugeCompetition
+	INTO
+		toReturn
 	FROM
 		equipe_jugeCompetition
 	WHERE
@@ -155,7 +163,9 @@ BEGIN
 			jugeCompetition.id
 	)
 	SELECT
-		ARRAY_AGG(jugeCompetition_id) INTO toReturn
+		ARRAY_AGG(jugeCompetition_id)
+	INTO
+		toReturn
 	FROM RES
 	;
 

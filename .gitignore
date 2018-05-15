@@ -3,4 +3,4 @@
 
 # Sortie du script -> cat de tous les fichiers
 natation_cat.sql
-trig_helpers/natation_fixtures.sql
+fixture_helpers/natation_fixtures.sql

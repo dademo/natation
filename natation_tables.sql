@@ -285,6 +285,7 @@ CREATE TABLE public.utilisateur_typeUtilisateur(
 ALTER TABLE public.utilisateur ADD CONSTRAINT fk_utilisateur_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
 -- Equipe
 ALTER TABLE public.equipe ADD CONSTRAINT fk_equipe_id_competition FOREIGN KEY(id_competition) REFERENCES public.competition(id);
+ALTER TABLE public.equipe ADD CONSTRAINT constr_personne_panelite CHECK (penalite IS NULL OR (penalite >= 0 AND penalite <= 4));
 -- Club
 ALTER TABLE public.club ADD CONSTRAINT fk_club_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
 -- JugeCompetition

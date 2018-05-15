@@ -99,7 +99,9 @@ DECLARE
 	dateDebut	DATE;
 BEGIN
 	SELECT
-		debut INTO dateDebut
+		debut
+	INTO
+		dateDebut
 	FROM equipe
 	WHERE
 		equipe.id = NEW.id_equipe
@@ -132,7 +134,9 @@ DECLARE
 BEGIN
 	-- Récupération de l'id de la compétition
 	SELECT
-		id_competition INTO competition_id
+		id_competition
+	INTO
+		competition_id
 	FROM
 		equipe
 	WHERE
@@ -141,7 +145,9 @@ BEGIN
 
 	-- Récupération des id des juges de la compétition
 	SELECT
-		ARRAY_AGG(jugeCompetition.id) INTO competition_juges
+		ARRAY_AGG(jugeCompetition.id)
+	INTO
+		competition_juges
 	FROM
 		jugeCompetition
 	INNER JOIN typeJuge
@@ -215,7 +221,9 @@ DECLARE
 BEGIN
 	-- On récupère la date de la compétition
 	SELECT
-		competition.dateCompetition INTO competitionDate
+		competition.dateCompetition
+	INTO
+		competitionDate
 	FROM
 		competition
 	WHERE
@@ -257,7 +265,9 @@ BEGIN
 	ELSE
 -- On vérifie qu'il y ait bien 6 juges associés
 		SELECT
-			COUNT(jugeCompetition.id) INTO nJuge
+			COUNT(jugeCompetition.id)
+		INTO
+			nJuge
 		FROM
 			jugeCompetition
 		INNER JOIN typeJuge
@@ -270,7 +280,9 @@ BEGIN
 		;
 		--
 		SELECT
-			COUNT(jugeCompetition.id) INTO nJugeArbitre
+			COUNT(jugeCompetition.id)
+		INTO
+			nJugeArbitre
 		FROM
 			jugeCompetition
 		INNER JOIN typeJuge
@@ -301,24 +313,32 @@ ON equipe
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_equipe_afterUpdate_debutBallet();
 
--- Quand on marque le ballet comme visionnable, il faut que toutes les notes des juges soient décidées et qu'il ait eu une heure de début
+-- Quand on marque le ballet comme visionnable, il faut que toutes les notes des juges soient décidées, qu'il ait eu une heure de début (trigger ajout notes) et que la pénalité soit différente de NULL
 CREATE OR REPLACE FUNCTION trig_fct_equipe_afterUpdate_visionnable()
 RETURNS trigger AS $body$
 DECLARE
 	nAvecNotes	INTEGER;
+	_penalite	INTEGER;
 BEGIN
 	SELECT
-		COUNT(equipe_jugeCompetition.id_jugeCompetition) INTO nAvecNotes
+		COUNT(equipe_jugeCompetition.id_jugeCompetition),
+		equipe.penalite
+	INTO
+		nAvecNotes,
+		_penalite
 	FROM
 		equipe_jugeCompetition
+	INNER JOIN equipe
+		ON equipe.id = equipe_jugeCompetition.id_equipe
 	WHERE
 		equipe_jugeCompetition.id_equipe = NEW.id
 	AND	equipe_jugeCompetition.note IS NOT NULL
 	GROUP BY
-		equipe_jugeCompetition.id_equipe
+		equipe_jugeCompetition.id_equipe, equipe.penalite
 	;
 
 	PERFORM checkValue_different(nAvecNotes, 5, format('Tous les juges n''ont pas donné leur note (%s)', nAvecNotes));
+	PERFORM checkValue_different(_penalite, NULL, format('La pénalité n''a pas été décidée (%s)', _penalite));
 	RETURN NEW;
 --	IF nAvecNotes <> 5 THEN
 --		RAISE EXCEPTION 'Tous les juges n''ont pas donné leur note (%)', nAvecNotes;
@@ -339,26 +359,26 @@ EXECUTE PROCEDURE trig_fct_equipe_afterUpdate_visionnable();
 
 
 -- Quand on modifie la pénalité, il faut qu'elle soit absolument > 0 et < MAX
-CREATE OR REPLACE FUNCTION trig_fct_equipe_afterUpdate_penalite()
-RETURNS trigger AS $body$
-BEGIN
+--CREATE OR REPLACE FUNCTION trig_fct_equipe_afterUpdate_penalite()
+--RETURNS trigger AS $body$
+--BEGIN
 	-- < 0 OR > 4*0.5 = 2)
-	IF NEW.penalite < 0 OR NEW.penalite > 4 THEN
-		RAISE EXCEPTION 'La valeur de la pénalité est incorrecte (% => %)', NEW.penalite, (NEW.penalite * 0.5);
-	ELSE
-		RETURN NEW;
-	END IF;
+--	IF NEW.penalite < 0 OR NEW.penalite > 4 THEN
+--		RAISE EXCEPTION 'La valeur de la pénalité est incorrecte (% => %)', NEW.penalite, (NEW.penalite * 0.5);
+--	ELSE
+--		RETURN NEW;
+--	END IF;
 
-END;
-$body$
-LANGUAGE plpgsql;
+--END;
+--$body$
+--LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trig_equipe_afterUpdate_penalite ON equipe;
-CREATE TRIGGER trig_equipe_afterUpdate_penalite
-AFTER UPDATE
-ON equipe
-FOR EACH ROW
-EXECUTE PROCEDURE trig_fct_equipe_afterUpdate_penalite();
+--DROP TRIGGER IF EXISTS trig_equipe_afterUpdate_penalite ON equipe;
+--CREATE TRIGGER trig_equipe_afterUpdate_penalite
+--AFTER UPDATE
+--ON equipe
+--FOR EACH ROW
+--EXECUTE PROCEDURE trig_fct_equipe_afterUpdate_penalite();
 
 ------------------------------------------------------------
 -- equipe_personne
@@ -376,7 +396,9 @@ DECLARE
 BEGIN
 	-- On récupère la date de la compétition
 	SELECT
-		competition.dateCompetition INTO date_competition
+		competition.dateCompetition
+	INTO
+		date_competition
 	FROM equipe
 	INNER JOIN competition
 		ON competition.id = equipe.id_competition
@@ -405,7 +427,9 @@ BEGIN
 		GROUP BY club.id
 	)
 	SELECT
-		ARRAY_AGG(club_id) INTO all_clubs
+		ARRAY_AGG(club_id)
+	INTO
+		all_clubs
 	FROM RES
 	;
 
@@ -420,7 +444,10 @@ BEGIN
 /*
 	-- On est sûr que la liste des clubs ne contient qu'un club
 	-- On vérifie que la personne fasse bien partie de l'équipe pour la compétition
-	SELECT club_personne.id_club INTO personne_club
+	SELECT
+		club_personne.id_club
+	INTO
+		personne_club
 	FROM club_personne
 	WHERE
 		club_personne.id_personne = NEW.id_personne
@@ -469,7 +496,9 @@ DECLARE
 BEGIN
 	-- On vérifie qu'il fasse partie d'un club
 	SELECT
-		personne.id_club INTO idClub
+		personne.id_club
+	INTO
+		idClub
 	FROM personne
 	WHERE
 		personne.id = NEW.id_personne
@@ -479,7 +508,9 @@ BEGIN
 
 
 	SELECT
-		COUNT(club.id) INTO nClub
+		COUNT(club.id)
+	INTO
+		nClub
 	FROM equipe_personne
 	INNER JOIN personne
 		ON personne.id = equipe_personne.id_personne
@@ -539,7 +570,9 @@ DECLARE
 	nRes	INTEGER;
 BEGIN
 	SELECT
-		COUNT(club_personne.id_personne) INTO nRes
+		COUNT(club_personne.id_personne)
+	INTO
+		nRes
 	FROM club_personne
 	WHERE
 		club_personne.id_personne = NEW.id_personne
@@ -575,7 +608,9 @@ DECLARE
 	utilisateurId	INTEGER;
 BEGIN
 	SELECT
-		utilisateur.id INTO utilisateurId
+		utilisateur.id
+	INTO
+		utilisateurId
 	FROM utilisateur
 	INNER JOIN utilisateur_typeUtilisateur
 		ON utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id
