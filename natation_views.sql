@@ -91,18 +91,20 @@ GROUP BY
 CREATE OR REPLACE VIEW all_nageur_club
 AS
 SELECT
-	personne.id			AS personne_id,
-	personne.nom			AS personne_nom,
-	personne.prenom			AS personne_prenom,
-	personne.dateNaissance		AS personne_dateNaissance,
-	personne.dateInscription	AS personne_dateInscription,
-	personne.dateFinInscription	AS personne_dateFinInscription,
-	club.id				AS club_id,
-	club.nom			AS club_nom,
-	club.adresse			AS club_adresse
+	personne.id				AS personne_id,
+	personne.nom				AS personne_nom,
+	personne.prenom				AS personne_prenom,
+	personne.dateNaissance			AS personne_dateNaissance,
+	club_personne.dateInscription		AS personne_dateInscription,
+	club_personne.dateFinInscription	AS personne_dateFinInscription,
+	club.id					AS club_id,
+	club.nom				AS club_nom,
+	club.adresse				AS club_adresse
 FROM personne
+INNER JOIN club_personne
+	ON club_personne.id_personne = personne.id
 INNER JOIN club
-	ON club.id = personne.id_club
+	ON club.id = club_personne.id_club
 ORDER BY personne.nom ASC, personne.prenom ASC, personne.dateInscription ASC, club.nom ASC
 ;
 

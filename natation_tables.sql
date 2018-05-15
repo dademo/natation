@@ -70,14 +70,10 @@ CREATE TABLE public.competition(
 CREATE TABLE public.personne(
 	-- Primary keys
 	id		INT  NOT NULL DEFAULT NEXTVAL('seq_personne_id'),
-	-- Foreign keys
-	id_club		INT DEFAULT NULL,
 	-- Data
 	nom			VARCHAR (50) NOT NULL ,
 	prenom			VARCHAR (50) NOT NULL ,
 	datenaissance		DATE ,
-	dateInscription		DATE NOT NULL ,
-	dateFinInscription	DATE ,
 	-- Contraints
 	CONSTRAINT prk_personne_id PRIMARY KEY (id)
 );
@@ -228,8 +224,7 @@ CREATE TABLE public.equipe_jugeCompetition(
 	-- Data
 	note			INT DEFAULT 0,
 	-- Constraints
-	CONSTRAINT prk_constraint_note PRIMARY KEY (id_equipe,id_jugeCompetition),
-	UNIQUE(id_equipe, id_jugeCompetition)
+	CONSTRAINT prk_equipe_jugeCompetition PRIMARY KEY (id_equipe,id_jugeCompetition)
 );
 
 
@@ -247,8 +242,24 @@ CREATE TABLE public.equipe_personne(
 	id_equipe	INT  NOT NULL ,
 	id_personne	INT  NOT NULL ,
 	-- Contraints
-	CONSTRAINT prk_constraint_Compose PRIMARY KEY (id_equipe,id_personne),
-	UNIQUE(id_equipe, id_personne)
+	CONSTRAINT prk_equipe_personne PRIMARY KEY (id_equipe,id_personne)
+);
+
+------------------------------------------------------------
+-- Table: club_personne
+------------------------------------------------------------
+-- Table de liaison entre la table des personnes et la table des clubs
+-- Permet de connaître le club d'une personne à chaque moment
+----
+-- personne		club
+-- 0,n		-> 	0,n
+------------------------------------------------------------
+CREATE TABLE public.club_personne(
+	-- Foreign keys
+	id_club			INTEGER NOT NULL ,
+	id_personne		INTEGER NOT NULL ,
+	dateInscription		DATE NOT NULL ,
+	dateFinInscription	DATE 
 );
 
 ------------------------------------------------------------
@@ -265,14 +276,10 @@ CREATE TABLE public.utilisateur_typeUtilisateur(
 	id_utilisateur		INT  NOT NULL ,
 	id_typeUtilisateur	INT  NOT NULL ,
 	-- Constraints
-	CONSTRAINT prk_constraint_est_un PRIMARY KEY (id_typeUtilisateur,id_utilisateur),
-	UNIQUE(id_typeUtilisateur, id_utilisateur)
+	CONSTRAINT prk_constraint_est_un PRIMARY KEY (id_typeUtilisateur,id_utilisateur)
 );
 
 
--- Personne
-ALTER TABLE public.personne ADD CONSTRAINT fk_personne_id_club FOREIGN KEY(id_club) REFERENCES public.club(id);
-ALTER TABLE public.personne ADD CONSTRAINT constr_prsonne_dateFinInscription CHECK (dateFinInscription IS NULL OR dateFinInscription > dateInscription);
 -- Utilisateur
 ALTER TABLE public.utilisateur ADD CONSTRAINT fk_utilisateur_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
 -- Equipe
@@ -290,6 +297,10 @@ ALTER TABLE public.equipe_jugeCompetition ADD CONSTRAINT constr_equipeJugeCompet
 -- Equipe_Personne
 ALTER TABLE public.equipe_personne ADD CONSTRAINT fk_equipe_personne_id_equipe FOREIGN KEY (id_equipe) REFERENCES public.equipe(id);
 ALTER TABLE public.equipe_personne ADD CONSTRAINT fk_equipe_personne_id_personne FOREIGN KEY (id_personne) REFERENCES public.personne(id);
+-- Club_Personne
+ALTER TABLE public.club_personne ADD CONSTRAINT fk_club_personne_id_club FOREIGN KEY(id_club) REFERENCES public.club(id);
+ALTER TABLE public.club_personne ADD CONSTRAINT fk_club_personne_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
+ALTER TABLE public.club_personne ADD CONSTRAINT constr_club_personne_dateFinInscription CHECK (dateFinInscription IS NULL OR dateFinInscription > dateInscription);
 -- Utilisateur_TypeUtilisateur
 ALTER TABLE public.utilisateur_typeUtilisateur ADD CONSTRAINT fk_utilisateurTypeUtilisateur_id_typeUtilisateur FOREIGN KEY (id_typeUtilisateur) REFERENCES public.typeUtilisateur(id);
 ALTER TABLE public.utilisateur_typeUtilisateur ADD CONSTRAINT fk_utilisateurTypeUtilisateur_id_utilisateur FOREIGN KEY (id_utilisateur) REFERENCES public.utilisateur(id);

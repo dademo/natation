@@ -47,6 +47,28 @@ LANGUAGE plpgsql;
 
 --format: trig_fct_[nomTable]_[Quand(BEFORE, AFTER, INSTEAD OF)][Action[Action+]][_description[_description+]]
 
+
+------------------------------------------------------------
+-- competition
+------------------------------------------------------------
+-- [[ INSERT | UPDATE ]] --
+-- La ville doit être en initcap
+CREATE OR REPLACE FUNCTION trig_fct_competition_beforeInsertUpdate_ville()
+RETURNS trigger AS $body$
+BEGIN
+	NEW.ville = INITCAP(NEW.ville);
+	return NEW;
+END;
+$body$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trig_competition_beforeInsertUpdate_ville ON competition;
+CREATE TRIGGER trig_competition_beforeInsertUpdate_ville
+BEFORE INSERT OR UPDATE
+ON competition
+FOR EACH ROW
+EXECUTE PROCEDURE trig_fct_competition_beforeInsertUpdate_ville();
+
 ------------------------------------------------------------
 -- equipe_jugeCompetition
 ------------------------------------------------------------
@@ -312,13 +334,16 @@ EXECUTE PROCEDURE trig_fct_equipe_afterUpdate_penalite();
 ------------------------------------------------------------
 
 -- [[ INSERT | UPDATE ]] --
+-- Quand on ajoute un nageur, on vérifie qu'il fasse partie du même club que les autres
 -- Quand on ajoute un joueur, on vérifie qu'il soit bien valide dans le temps donné
 CREATE OR REPLACE FUNCTION trig_fct_equipe_personne_afterInsertUpdate_personneInscription()
 RETURNS trigger AS $body$
 DECLARE
-	date_competition	DATE;
-	_personne		personne%ROWTYPE;
+	date_competition	DATE;		-- Date de la compétition
+	personne_club		INTEGER;	-- Club de la personne ajoutée
+	all_clubs		INTEGER[];	-- Liste des clubs trouvés pour la compétition
 BEGIN
+	-- On récupère la date de la compétition
 	SELECT
 		competition.dateCompetition INTO date_competition
 	FROM equipe
@@ -328,14 +353,57 @@ BEGIN
 		equipe.id = NEW.id_equipe
 	;
 
-	SELECT * INTO _personne
-	FROM personne
+	-- On récupère la liste des clubs des utilisateurs pour la date donnée
+	SELECT
+		ARRAY_AGG(club.id) INTO all_clubs
+	FROM equipe_personne
+	INNER JOIN personne
+		ON personne.id = equipe_personne.id_personne
+	INNER JOIN club_personne
+		ON club_personne.id_personne = equipe_personne.id_personne
+	INNER JOIN club
+		ON club.id = equipe_personne.id_club
 	WHERE
-		personne.id = NEW.id_personne
+		equipe_personne.id_equipe = NEW.id_equipe
+	AND	club_personne.dateInscription < date_competition
+	AND  (
+		club_personne.dateFinInscription IS NULL
+	OR	club_personne.dateFinInscription > date_competition
+	)
+	GROUP BY club.id
 	;
 
-	IF date_competition > _personne.dateInscription THEN
-		IF _personne.dateFinInscription IS NOT NULL THEN
+	PERFORM checkValue_different(
+		ARRAY_LENGTH(all_clubs, 1),
+		1,
+		format('Les joueurs font partie de plusieurs clubs (%s)', array_to_string(all_clubs, ',', '*') )
+	);
+
+	RETURN NEW;
+
+/*
+	-- On est sûr que la liste des clubs ne contient qu'un club
+	-- On vérifie que la personne fasse bien partie de l'équipe pour la compétition
+	SELECT club_personne.id_club INTO personne_club
+	FROM club_personne
+	WHERE
+		club_personne.id_personne = NEW.id_personne
+	AND	club_personne.dateInscription < date_competition
+	AND (
+		club_personne.dateFinInscription IS NULL
+	OR	club_personne.dateFinInscription > date_competition
+	);
+
+	IF nPersonne = 0 THEN
+		RAISE EXCEPTION 'La personne n''est pas inscrite à cette date dans ce club'
+	ELSIF
+
+	ELSE
+
+	END;
+
+	IF date_competition > _club_personne.dateInscription THEN
+		IF _club_personne.dateFinInscription IS NOT NULL THEN
 			
 		ELSE
 			-- La personne est toujours inscrite
@@ -344,7 +412,7 @@ BEGIN
 	ELSE
 		RAISE EXCEPTION 'La date de début de la compétition est située avant l''inscription de la personne (date_competition: %s; date_inscription: %s). ERREUR', date_competition, _personne.dateInscription;
 		RETURN NULL;
-	END IF;
+	END IF;*/
 END;
 $body$
 LANGUAGE plpgsql;
@@ -356,8 +424,7 @@ ON equipe_personne
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_equipe_personne_afterInsertUpdate_personneInscription();
 
-
--- Quand on ajoute un nageur, on vérifie qu'il fasse partie du même club que les autres
+/*
 CREATE OR REPLACE FUNCTION trig_fct_equipe_personne_afterInsertUpdate_personneEquipe()
 RETURNS trigger AS $body$
 DECLARE
@@ -398,7 +465,7 @@ AFTER INSERT OR UPDATE
 ON equipe_personne
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_equipe_personne_afterInsertUpdate_personneEquipe();
-
+*/
 
 ------------------------------------------------------------
 -- personne
@@ -424,21 +491,25 @@ ON personne
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_personne_beforeInsertUpdate_nomPrenom();
 
+------------------------------------------------------------
+-- club_personne
+------------------------------------------------------------
+
+-- [[ INSERT | UPDATE ]] --
 -- On vérifie que la personne n'est pas déjà inscrite dans un club avec les périodes données
-CREATE OR REPLACE FUNCTION trig_fct_personne_afterInsertUpdate_inscription()
+CREATE OR REPLACE FUNCTION trig_fct_club_personne_afterInsertUpdate_inscription()
 RETURNS trigger AS $body$
 DECLARE
 	nRes	INTEGER;
 BEGIN
 	SELECT
-		COUNT(personne.id) INTO nRes
-	FROM personne
+		COUNT(club_personne.id_personne) INTO nRes
+	FROM club_personne
 	WHERE
-		personne.nom = NEW.nom
-	AND	personne.prenom = NEW.prenom
+		club_personne.id_personne = NEW.id_pesonne
 	AND	(
-			personne.dateInscription > NEW.dateInscription
-		OR	personne.dateFinInscription > NEW.dateInscription
+			club_personne.dateInscription > NEW.dateInscription
+		OR	club_personne.dateFinInscription > NEW.dateInscription
 		)
 	;
 
@@ -449,12 +520,12 @@ END;
 $body$
 LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trig_personne_afterInsertUpdate_inscription ON personne;
-CREATE TRIGGER trig_personne_afterInsertUpdate_inscription
+DROP TRIGGER IF EXISTS trig_club_personne_afterInsertUpdate_inscription ON club_personne;
+CREATE TRIGGER trig_club_personne_afterInsertUpdate_inscription
 BEFORE INSERT OR UPDATE
-ON personne
+ON club_personne
 FOR EACH ROW
-EXECUTE PROCEDURE trig_fct_personne_afterInsertUpdate_inscription();
+EXECUTE PROCEDURE trig_fct_club_personne_afterInsertUpdate_inscription();
 
 ------------------------------------------------------------
 -- jugeCompetition
