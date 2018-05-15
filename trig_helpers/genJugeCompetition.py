@@ -32,7 +32,7 @@ req = (
 	'\t' + str(jugeCompetition[0]) + ',\n' + 
 	'\t(SELECT typeJuge.id FROM typeJuge WHERE typeJuge.nom = \'' + jugeCompetition[1] + '\'),\n' + 
 	'\t(SELECT competition.id FROM competition WHERE competition.titre = \'' + jugeCompetition[2] + '\'),\n' + 
-	'\t(SELECT personne.id FROM personne WHERE personne.mail = \'' + jugeCompetition[3] + '\'),\n' + 
+	'\t(SELECT utilisateur.id FROM utilisateur WHERE utilisateur.mail = \'' + jugeCompetition[3] + '\'),\n' + 
 	'\t' + str(jugeCompetition[4]) + '\n' + 
 	')'
 	for jugeCompetition in allJugeCompetition

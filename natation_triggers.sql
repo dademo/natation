@@ -506,7 +506,7 @@ BEGIN
 		COUNT(club_personne.id_personne) INTO nRes
 	FROM club_personne
 	WHERE
-		club_personne.id_personne = NEW.id_pesonne
+		club_personne.id_personne = NEW.id_personne
 	AND	(
 			club_personne.dateInscription > NEW.dateInscription
 		OR	club_personne.dateFinInscription > NEW.dateInscription

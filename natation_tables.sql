@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS public.typeUtilisateur CASCADE;
 DROP TABLE IF EXISTS public.equipe_jugeCompetition CASCADE;
 DROP TABLE IF EXISTS public.equipe_personne CASCADE;
 DROP TABLE IF EXISTS public.utilisateur_typeUtilisateur CASCADE;
+DROP TABLE IF EXISTS public.club_personne CASCADE;
 
 
 ------------------------------------------------------------

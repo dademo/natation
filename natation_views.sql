@@ -56,14 +56,14 @@ SELECT
 	equipe.ordrePassage			AS equipe_ordrePassage,
 	personne.id				AS equipe_membre_id,
 	personne.nom || ' ' || personne.prenom	AS equipe_membre,
-	personne.id_club			AS club_id
+	club_personne.id_club			AS club_id
 FROM equipe
 INNER JOIN equipe_personne
 	ON equipe_personne.id_equipe = equipe.id
 INNER JOIN personne
 	ON personne.id = equipe_personne.id_personne
-WHERE
-	personne.id_club IS NOT NULL
+INNER JOIN club_personne
+	ON club_personne.id_personne = personne.id
 ORDER BY
 	equipe.id ASC,
 	personne.nom ASC
@@ -105,7 +105,7 @@ INNER JOIN club_personne
 	ON club_personne.id_personne = personne.id
 INNER JOIN club
 	ON club.id = club_personne.id_club
-ORDER BY personne.nom ASC, personne.prenom ASC, personne.dateInscription ASC, club.nom ASC
+ORDER BY personne.nom ASC, personne.prenom ASC, club_personne.dateInscription ASC, club.nom ASC
 ;
 
 -- Liste des personnes avec leurs types (nageur, arbitre, etc)
@@ -133,15 +133,14 @@ SELECT
 	personne.dateNaissance	AS personne_dateNaissance,
 	(
 	CASE
-		WHEN club.id IS NOT NULL
+		WHEN club_personne.id_club IS NOT NULL
 		THEN 'Nageur'
 		ELSE NULL
 	END
 	)			AS personne_type
 FROM personne
-LEFT OUTER JOIN club
-	ON club.id = personne.id_club
-WHERE club.id IS NOT NULL
+LEFT OUTER JOIN club_personne
+	ON club_personne.id_personne = personne.id
 )
 SELECT
 	personne_id,

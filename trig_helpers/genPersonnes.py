@@ -34,7 +34,7 @@ for i in range(0,5):
 for i in range(0,6):
 	allPersonnes.append([
 		'DEFAULT',
-		'ARBITRE' + str(i+1),
+		'JUGE' + str(i+1),
 		'Test',
 		'29/07/1998'
 	])
@@ -62,7 +62,7 @@ req = (
 
 
 print(
-	'INSERT INTO personnes VALUES\n' + 
+	'INSERT INTO personne VALUES\n' + 
 	# voir: http://www.diveintopython.net/file_handling/for_loops.html
 	', \n'.join(req) +
 	';\n\n'
