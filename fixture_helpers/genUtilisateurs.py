@@ -30,7 +30,7 @@ for i in range(0,6):
 req = (
 		'(\n' + 
 		'\t' + str(utilisateur[0]) + ',\n' + 
-		'\t(SELECT personne.id FROM public.personne WHERE personne.nom = \'' + utilisateur[1] + '\' AND personne.prenom = \'' + utilisateur[2] + '\'),\n' + 
+		'\t(SELECT personne.id FROM personne WHERE personne.nom = \'' + utilisateur[1] + '\' AND personne.prenom = \'' + utilisateur[2] + '\'),\n' + 
 		'\t\'' + utilisateur[3] + '\',\n' + 
 		'\t\'' + utilisateur[4] + '\'\n' + 
 		')'

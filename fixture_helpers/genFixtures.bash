@@ -21,6 +21,11 @@ fileList=(
 	genUtilisateur_typeUtilisateur.py
 	genCompetition.py
 	genJugeCompetition.py
+	genEquipe.py
+	genEquipe_personne.py
+	genEquipe_jugeCompetition.py
+	updateHeureDebut.py
+	updateNotes.py
 )
 
 # Remise à zéro du fichier final

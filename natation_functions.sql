@@ -88,21 +88,32 @@ DECLARE
 	toReturn	INTEGER[5];
 	nRes		INTEGER;
 BEGIN
+	WITH RES AS (
+		SELECT
+			jugeCompetition.id AS jugeCompetition_id
+		FROM
+			jugeCompetition
+		INNER JOIN typeJuge
+			ON typeJuge.id = jugeCompetition.id_typejuge
+		WHERE
+			jugeCompetition.id_competition = idCompetition
+		AND	typeJuge.nom = 'Juge'
+		GROUP BY
+			jugeCompetition.id
+		ORDER BY
+			jugeCompetition.id
+	)
 	SELECT
-		ARRAY_AGG(jugeCompetition.id) INTO toReturn
-	FROM
-		jugeCompetition
-	WHERE
-		jugeCompetition.id_competition = idCompetition
-	ORDER BY
-		jugeCompetition.id
+		ARRAY_AGG(jugeCompetition_id) INTO toReturn
+	FROM RES
 	;
 
 	GET DIAGNOSTICS nRes = ROW_COUNT;
 
-	IF nRes <> 5
+	--IF nRes <> 5
+	IF array_length(toReturn, 1) <> 5
 	THEN
-		RAISE EXCEPTION 'Le nombre de juges pour la compétition est incorrect (idCompetition: %, nRes: %). Erreur', idCompetition, nRes;
+		RAISE EXCEPTION 'Le nombre de juges pour la compétition est incorrect (idCompetition: %; nRes: %; res: %). Erreur', idCompetition, nRes, array_to_string(toReturn, ',');
 		RETURN NULL;
 	ELSE
 		RETURN toReturn;
@@ -116,8 +127,8 @@ CREATE OR REPLACE FUNCTION getJugesEquipe(idEquipe INTEGER)
 RETURNS integer[] AS $body$
 DECLARE
 	toReturn	INTEGER[5];
-	nRes		INTEGER;
 BEGIN
+	/*
 	SELECT
 		equipe_jugeCompetition.id_jugeCompetition INTO toReturn
 	FROM
@@ -125,15 +136,32 @@ BEGIN
 	WHERE
 		equipe_jugeCompetition.id_equipe = idEquipe
 	ORDER BY
-		equipe_jugeCompetition.id
+		equipe_jugeCompetition.id_jugeCompetition
+	;*/
+
+	WITH RES AS (
+		SELECT
+			jugeCompetition.id AS jugeCompetition_id
+		FROM
+			jugeCompetition
+		INNER JOIN typeJuge
+			ON typeJuge.id = jugeCompetition.id_typeJuge
+		WHERE
+			jugeCompetition.id_competition = idEquipe
+		AND	typeJuge.nom = 'Juge'
+		GROUP BY
+			jugeCompetition.id
+		ORDER BY
+			jugeCompetition.id
+	)
+	SELECT
+		ARRAY_AGG(jugeCompetition_id) INTO toReturn
+	FROM RES
 	;
 
-
-	GET DIAGNOSTICS nRes = ROW_COUNT;
-
-	IF nRes <> 5
+	IF array_length(toReturn, 1) <> 5
 	THEN
-		RAISE EXCEPTION 'Le nombre de juges pour la compétition est incorrect (idCompetition: %, nRes: %). Erreur', idCompetition, nRes;
+		RAISE EXCEPTION 'Le nombre de juges pour la compétition est incorrect (toReturn: %, nRes: %). Erreur', array_to_string(toReturn, ','), nRes;
 		RETURN NULL;
 	ELSE
 		RETURN toReturn;

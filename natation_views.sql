@@ -7,7 +7,7 @@ SELECT
 	competition.dateCompetition					AS competition_dateCompetition,
 	competition.ville						AS competition_ville,
 	jugeCompetition.id						AS jugeCompetition_id,
-	personne.prenom || ' ' || personne.nom				AS juge_nomComplet,
+	personne.nom || ' ' || personne.prenom				AS juge_nomComplet,
 	typeJuge.nom							AS juge_type,
 	jugeCompetition.rang						AS juge_rang
 FROM competition
@@ -147,7 +147,7 @@ SELECT
 	personne_nom,
 	personne_prenom,
 	personne_dateNaissance,
-	ARRAY_AGG(personne_type) AS personne_type
+	ARRAY_REMOVE(ARRAY_AGG(personne_type), NULL) AS personne_type
 FROM res
 GROUP BY personne_id, personne_nom, personne_prenom, personne_dateNaissance
 ORDER BY personne_nom ASC, personne_prenom ASC

@@ -30,10 +30,10 @@ fileList=(
 	natation_views.sql
 	natation_functions.sql
 	natation_triggers.sql
-	trig_helpers/natation_fixtures.sql
+	fixture_helpers/natation_fixtures.sql
 );
 prerequisites_exec=(
-	trig_helpers/genTriggers.bash
+	fixture_helpers/genFixtures.bash
 )
 
 # For the childs

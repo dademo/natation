@@ -113,7 +113,7 @@ CREATE TABLE public.equipe(
 	-- Data
 	nom		VARCHAR(25) NOT NULL ,
 	ordrePassage	INT  NOT NULL ,
-	debut		DATE ,
+	debut		TIMESTAMP ,
 	visionnable	BOOLEAN  NOT NULL ,
 	penalite	INT ,	-- out: x * 0.5
 	-- Contraints

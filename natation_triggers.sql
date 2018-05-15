@@ -91,6 +91,37 @@ ON equipe_jugeCompetition
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_equipe_jugeCompetition_afterInsert_noteJuryCompetition();
 
+-- [[ UPDATE ]] --
+-- Lorsqu'on veut ajouter des notes, il faut que la compétition ait commencé
+CREATE OR REPLACE FUNCTION trig_fct_equipe_jugeCompetition_beforeUpdate_noteJuryCompetition()
+RETURNS trigger AS $body$
+DECLARE
+	dateDebut	DATE;
+BEGIN
+	SELECT
+		debut INTO dateDebut
+	FROM equipe
+	WHERE
+		equipe.id = NEW.id_equipe
+	;
+
+	IF dateDebut IS NULL THEN
+		RAISE EXCEPTION 'Le ballet n''a pas commencé. Les notes ne peuvent pas être appliquées. Abandon';
+	ELSE
+		RETURN NEW;
+	END IF;
+END;
+$body$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trig_equipe_jugeCompetition_beforeUpdate_noteJuryCompetition ON equipe_jugeCompetition;
+CREATE TRIGGER trig_equipe_jugeCompetition_beforeUpdate_noteJuryCompetition
+BEFORE UPDATE
+ON equipe_jugeCompetition
+FOR EACH ROW
+EXECUTE PROCEDURE trig_fct_equipe_jugeCompetition_beforeUpdate_noteJuryCompetition();
+
+
 -- [[ INSERT | UPDATE ]] --
 -- Les juges doivent être de la même compétition
 CREATE OR REPLACE FUNCTION trig_fct_equipe_jugeCompetition_afterInsertUpdate_juges()
@@ -117,7 +148,7 @@ BEGIN
 		ON typejuge.id = jugeCompetition.id_typeJuge
 	WHERE
 		jugeCompetition.id_competition = competition_id
-	AND	typeJuge = 'Juge'
+	AND	typeJuge.nom = 'Juge'
 	;
 
 	-- On vérifie que le juge qu'on ajoute est lié à la compétition
@@ -184,7 +215,7 @@ DECLARE
 BEGIN
 	-- On récupère la date de la compétition
 	SELECT
-		competition.date INTO competitionDate
+		competition.dateCompetition INTO competitionDate
 	FROM
 		competition
 	WHERE
@@ -230,12 +261,12 @@ BEGIN
 		FROM
 			jugeCompetition
 		INNER JOIN typeJuge
-			ON typeJuge.id = jugeCompetition
+			ON typeJuge.id = jugeCompetition.id_typeJuge
 		WHERE
 			jugeCompetition.id_competition = NEW.id_competition
 		AND	typeJuge.nom = 'Juge'
 		GROUP BY
-				jugeCompetition.id_competition
+			jugeCompetition.id_competition, jugeCompetition.id
 		;
 		--
 		SELECT
@@ -243,12 +274,12 @@ BEGIN
 		FROM
 			jugeCompetition
 		INNER JOIN typeJuge
-			ON typeJuge.id = jugeCompetition
+			ON typeJuge.id = jugeCompetition.id_typeJuge
 		WHERE
 			jugeCompetition.id_competition = NEW.id_competition
 		AND	typeJuge.nom = 'Juge-arbitre'
 		GROUP BY
-				jugeCompetition.id_competition
+			jugeCompetition.id_competition
 		;
 
 
@@ -277,7 +308,7 @@ DECLARE
 	nAvecNotes	INTEGER;
 BEGIN
 	SELECT
-		COUNT(equipe_jugeCompetition.id_juge) INTO nAvecNotes
+		COUNT(equipe_jugeCompetition.id_jugeCompetition) INTO nAvecNotes
 	FROM
 		equipe_jugeCompetition
 	WHERE
@@ -354,23 +385,28 @@ BEGIN
 	;
 
 	-- On récupère la liste des clubs des utilisateurs pour la date donnée
-	SELECT
-		ARRAY_AGG(club.id) INTO all_clubs
-	FROM equipe_personne
-	INNER JOIN personne
-		ON personne.id = equipe_personne.id_personne
-	INNER JOIN club_personne
-		ON club_personne.id_personne = equipe_personne.id_personne
-	INNER JOIN club
-		ON club.id = equipe_personne.id_club
-	WHERE
-		equipe_personne.id_equipe = NEW.id_equipe
-	AND	club_personne.dateInscription < date_competition
-	AND  (
-		club_personne.dateFinInscription IS NULL
-	OR	club_personne.dateFinInscription > date_competition
+	WITH RES AS (
+		SELECT
+			club.id AS club_id
+		FROM equipe_personne
+		INNER JOIN personne
+			ON personne.id = equipe_personne.id_personne
+		INNER JOIN club_personne
+			ON club_personne.id_personne = equipe_personne.id_personne
+		INNER JOIN club
+			ON club.id = club_personne.id_club
+		WHERE
+			equipe_personne.id_equipe = NEW.id_equipe
+		AND	club_personne.dateInscription < date_competition
+		AND  (
+			club_personne.dateFinInscription IS NULL
+		OR	club_personne.dateFinInscription > date_competition
+		)
+		GROUP BY club.id
 	)
-	GROUP BY club.id
+	SELECT
+		ARRAY_AGG(club_id) INTO all_clubs
+	FROM RES
 	;
 
 	PERFORM checkValue_different(
