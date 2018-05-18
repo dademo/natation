@@ -87,15 +87,23 @@ body > .banner {
   height: 125px;
 }
 
-#page-banner .banner-right {
-  background-image: url('../Header_natation.png');
-  background-repeat: no-repeat;
-  /*background-size: auto 100%;*/
-  background-size: auto 125px;
-  background-clip: contain;
-  background-attachment: fixed;
-  background-position: top right;
-  height: 125px;
+@media (min-width: 768px) {
+  #page-banner .banner-right {
+    background-image: url('../Header_natation.png');
+    background-repeat: no-repeat;
+    /*background-size: auto 100%;*/
+    background-size: auto 125px;
+    background-clip: contain;
+    background-attachment: fixed;
+    background-position: top right;
+    height: 125px;
+  }
+}
+
+@media (max-width: 767px) {
+  #page-banner .banner-right {
+    visibility: hidden;
+  }
 }
 
 .navbar {
