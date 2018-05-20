@@ -23,6 +23,9 @@
     <!-- Custom styles for this template -->
     <link href="css/sticky-footer-navbar.css" rel="stylesheet">
 
+    <!-- Custom style sheet -->
+    <link href="css/custom.css" rel="stylesheet">
+
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="js/ie-emulation-modes-warning.js"></script>
@@ -41,8 +44,8 @@
       <div class="row">
         <!--<div class="col-xs-6"><img src="Logo_natation.png"></img></div>
         <div class="col-xs-6"><img src="Header_natation.png"></img></div>-->
-        <div class="col-sm-6 banner-left"></div>
-        <div class="col-sm-6 banner-right"></div>
+        <div class="col-sm-3 banner-left"></div>
+        <div class="col-sm-9 banner-right"></div>
       </div>
     </div>
 
@@ -86,13 +89,30 @@
     <!-- Begin page content -->
     <div class="container">
       <div class="page-header">
-        <h1>Sticky footer with fixed navbar</h1>
+        <h1>--Nom de la page--</h1>
+      </div>
+      <div>
+        <p>CONTENU DE LA PAGE</p>
       </div>
       <p class="lead">Pin a fixed-height footer to the bottom of the
 viewport in desktop browsers with this custom HTML and CSS. A fixed
 navbar has been added with <code>padding-top: 60px;</code> on the <code>body &gt; .container</code>.</p>
       <p>Back to <a href="https://getbootstrap.com/docs/3.3/examples/sticky-footer">the default sticky footer</a> minus the navbar.</p>
-    </div>
+  	<div class="row">
+  	  <div class="col-sm-3">
+        <form action="index.html" method="get">
+  		    <select name="all_arbitres" class="form-control list-organize" size="6">
+  		      <option value="valeur1">1</option>
+  	  	    <option value="valeur2">2</option>
+    		    <option value="valeur3">3</option>
+  		      <option value="valeur4">4</option>
+  		      <option value="valeur5">5</option>
+  		    </select>
+          <input type="submit" value="Envoyer" class="btn btn-default" />
+        </form>
+        </div>
+  	  </div>
+  </div>
 
     <footer class="footer">
       <div class="container">
@@ -110,5 +130,6 @@ navbar has been added with <code>padding-top: 60px;</code> on the <code>body &gt
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="js/ie10-viewport-bug-workaround.js"></script>
 
-
+    <script src="js/DDE_js/list_organize.js"></script>
+    <script src="js/DDE_js/form_send_all_select.js"></script>
 </body></html>
