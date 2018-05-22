@@ -15,6 +15,7 @@ script_dir=$(dirname $0)
 outFile=${script_dir}/'natation_fixtures.sql'
 fileList=(
 	genPersonnes.py
+	genLieu.py
 	genClub.py
 	genPersonne_club.py
 	genUtilisateurs.py

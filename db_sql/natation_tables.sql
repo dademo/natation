@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS public.utilisateur CASCADE;
 DROP TABLE IF EXISTS public.equipe CASCADE;
 DROP TABLE IF EXISTS public.club CASCADE;
 DROP TABLE IF EXISTS public.jugeCompetition CASCADE;
+DROP TABLE IF EXISTS public.lieu CASCADE;
 DROP TABLE IF EXISTS public.typeJuge CASCADE;
 DROP TABLE IF EXISTS public.typeUtilisateur CASCADE;
 DROP TABLE IF EXISTS public.equipe_jugeCompetition CASCADE;
@@ -29,6 +30,7 @@ DROP SEQUENCE IF EXISTS seq_utilisateur_id;
 DROP SEQUENCE IF EXISTS seq_equipe_id;
 DROP SEQUENCE IF EXISTS seq_club_id;
 DROP SEQUENCE IF EXISTS seq_jugeCompetition;
+DROP SEQUENCE IF EXISTS seq_lieu;
 DROP SEQUENCE IF EXISTS seq_typeJuge;
 DROP SEQUENCE IF EXISTS seq_typeUtilisateur;
 -- 2. Adding the sequences
@@ -38,6 +40,7 @@ CREATE SEQUENCE IF NOT EXISTS seq_utilisateur_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_equipe_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_club_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_jugeCompetition_id INCREMENT BY 1 START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS seq_lieu_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeJuge_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeUtilisateur_id INCREMENT BY 1 START WITH 1;
 
@@ -53,10 +56,11 @@ CREATE SEQUENCE IF NOT EXISTS seq_typeUtilisateur_id INCREMENT BY 1 START WITH 1
 CREATE TABLE public.competition(
 	-- Primary keys
 	id		INT  NOT NULL DEFAULT NEXTVAL('seq_competition_id') ,
+	-- Foreign keys
+	id_lieu		INT NOT NULL,
 	-- Data
 	titre		VARCHAR (50) NOT NULL ,
 	dateCompetition	DATE  NOT NULL ,
-	ville		VARCHAR (50) NOT NULL ,
 	-- Contraints
 	CONSTRAINT prk_competition_id PRIMARY KEY (id)
 );
@@ -132,10 +136,10 @@ CREATE TABLE public.club(
 	-- Primary keys
 	id		INT  NOT NULL DEFAULT NEXTVAL('seq_club_id'),
 	-- Foreign keys
+	id_lieu		INT NOT NULL,
 	id_personne	INT NOT NULL,	-- Utilisateur président du club
 	-- Data
-	nom		VARCHAR (50) NOT NULL UNIQUE ,
-	adresse		VARCHAR (100) NOT NULL ,
+	nom		VARCHAR (50) NOT NULL UNIQUE,
 	-- Contraints
 	CONSTRAINT prk_club_id PRIMARY KEY (id)
 );
@@ -159,6 +163,23 @@ CREATE TABLE public.jugeCompetition(
 	-- Constraints
 	CONSTRAINT prk_jugeCompetition_id PRIMARY KEY (id),
 	UNIQUE(id_competition, rang)	-- Un seul juge du même rang pour la même compétition
+);
+
+
+------------------------------------------------------------
+-- Table: jugeCompetition
+------------------------------------------------------------
+-- Table des juges de compétition
+-- Un juge est un *utilisateur* juge relié à une *compétition* pour laquelle il a un *type*
+------------------------------------------------------------
+CREATE TABLE public.lieu(
+	-- Primary keys
+	id		INT NOT NULL DEFAULT NEXTVAL('seq_lieu_id'),
+	-- Data
+	adresse		VARCHAR(100) NOT NULL,
+	-- Constraints
+	CONSTRAINT prk_lieu_id PRIMARY KEY (id),
+	UNIQUE(adresse)
 );
 
 
@@ -281,12 +302,15 @@ CREATE TABLE public.utilisateur_typeUtilisateur(
 );
 
 
+--Competition
+ALTER TABLE public.competition ADD CONSTRAINT fk_competition_id_lieu FOREIGN KEY(id_lieu) REFERENCES public.lieu(id);
 -- Utilisateur
 ALTER TABLE public.utilisateur ADD CONSTRAINT fk_utilisateur_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
 -- Equipe
 ALTER TABLE public.equipe ADD CONSTRAINT fk_equipe_id_competition FOREIGN KEY(id_competition) REFERENCES public.competition(id);
 ALTER TABLE public.equipe ADD CONSTRAINT constr_personne_panelite CHECK (penalite IS NULL OR (penalite >= 0 AND penalite <= 4));
 -- Club
+ALTER TABLE public.club ADD CONSTRAINT fk_club_id_lieu FOREIGN KEY(id_lieu) REFERENCES public.lieu(id);
 ALTER TABLE public.club ADD CONSTRAINT fk_club_id_personne FOREIGN KEY(id_personne) REFERENCES public.personne(id);
 -- JugeCompetition
 ALTER TABLE public.jugeCompetition ADD CONSTRAINT fk_jugeCompetition_id_typeJuge FOREIGN KEY (id_typeJuge) REFERENCES public.typeJuge(id);

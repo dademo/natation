@@ -53,21 +53,21 @@ LANGUAGE plpgsql;
 ------------------------------------------------------------
 -- [[ INSERT | UPDATE ]] --
 -- La ville doit être en initcap
-CREATE OR REPLACE FUNCTION trig_fct_competition_beforeInsertUpdate_ville()
-RETURNS trigger AS $body$
-BEGIN
-	NEW.ville = INITCAP(NEW.ville);
-	return NEW;
-END;
-$body$
-LANGUAGE plpgsql;
+--CREATE OR REPLACE FUNCTION trig_fct_competition_beforeInsertUpdate_ville()
+--RETURNS trigger AS $body$
+--BEGIN
+--	NEW.ville = INITCAP(NEW.ville);
+--	return NEW;
+--END;
+--$body$
+--LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trig_competition_beforeInsertUpdate_ville ON competition;
-CREATE TRIGGER trig_competition_beforeInsertUpdate_ville
-BEFORE INSERT OR UPDATE
-ON competition
-FOR EACH ROW
-EXECUTE PROCEDURE trig_fct_competition_beforeInsertUpdate_ville();
+--DROP TRIGGER IF EXISTS trig_competition_beforeInsertUpdate_ville ON competition;
+--CREATE TRIGGER trig_competition_beforeInsertUpdate_ville
+--BEFORE INSERT OR UPDATE
+--ON competition
+--FOR EACH ROW
+--EXECUTE PROCEDURE trig_fct_competition_beforeInsertUpdate_ville();
 
 ------------------------------------------------------------
 -- equipe_jugeCompetition

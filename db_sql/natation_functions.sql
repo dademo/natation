@@ -25,17 +25,15 @@ BEGIN
 	INTO
 		usrPwd
 	FROM utilisateur
-	INNER JOIN personne
-		-- La personne est toujours inscrite
-		ON personne.dateFinInscription IS NULL
-			OR personne.dateFinInscription >= CURRENT_DATE
+--	INNER JOIN personne
+--		ON personne.id = utilisateur.id_personne
 	WHERE
 		utilisateur.mail = adresseMail
 	;
 
 	IF usrPwd IS NULL
 	THEN
-		RAISE EXCEPTION 'L''utilisateur demandé n''existe pas ou est périmé ! (%)', adresseMail;
+		RAISE EXCEPTION 'L''utilisateur demandé n''existe pas (%)', adresseMail;
 		RETURN FALSE;
 	ELSE
 		IF (SELECT usrPwd = crypt(motDePasse, usrPwd)) IS TRUE
