@@ -1,0 +1,17 @@
+{
+    "name": "dademo/natation",
+    "description": "A test project to try installing some Composer packages",
+    "type": "project",
+    "authors": [
+        {
+            "name": "dademo",
+            "email": "d.demonaz@lyon.ort.asso.fr"
+        }
+    ],
+    "require": {
+        "twig/twig": "^2.4"
+    },
+    "require-dev": {
+        "kint-php/kint": "^2.2"
+    }
+}

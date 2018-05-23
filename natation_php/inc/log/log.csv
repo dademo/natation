@@ -1,0 +1,7 @@
+Type d'erreur;Code d'erreur;Message;Stacktrace;Date d'émission;Plus
+PDOException";"7";"SQLSTATE[08006] [7] FATAL:  authentification par mot de passe échouée pour l'utilisateur  « apache »
+FATAL:  authentification par mot de passe échouée pour l'utilisateur  « apache »";"#0 /var/www/dev/natation/_index2.php(17): PDO->__construct('pgsql:host=loca...', 'apache', 'apach')
+#1 {main}";"21/05/2018 14:20:16";
+PDOException";"7";"SQLSTATE[08006] [7] FATAL:  authentification par mot de passe échouée pour l'utilisateur  « apache »
+FATAL:  authentification par mot de passe échouée pour l'utilisateur  « apache »";"#0 /var/www/dev/natation/_index2.php(17): PDO->__construct('pgsql:host=loca...', 'apache', 'apach')
+#1 {main}";"21/05/2018 14:57:21";
