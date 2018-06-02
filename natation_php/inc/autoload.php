@@ -4,6 +4,7 @@ spl_autoload_register(function ($className) {
 
     $baseInclude = array(// Chemin de toutes les inclusions
         'src/',      // Dossier des ressources
+        'inc/',
     );
 
     $extensionInclude = array(// Liste des extensions à inclure

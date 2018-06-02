@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace controller;
 
 /**
@@ -13,14 +7,19 @@ namespace controller;
  *
  * @author dademo
  */
-class HelloWorld {
+class HelloWorld extends Controller {
 
     public function __construct() {
-        echo 'Hello world !';
+        //echo 'Hello world !';
     }
 
-    public static function test() {
-        echo 'TEST';
+    public function test() {
+        $this->setToRender('toto.twig');
+        $this->render(array(
+            'msg' => 'Hello World !',
+            'page_title' => 'Hello World !',
+            'body_title' => 'Hello World ! (this title ><)'
+        ));
     }
 
 }

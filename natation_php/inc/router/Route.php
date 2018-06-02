@@ -59,8 +59,11 @@ class Route {
             array_shift($matches);
             // Et on sauvegarde les résultats
             $this->args = $matches;
+            // On crée le controller
+            $_controller = new $this->controller();
             // On exécute la fonction associée
-            $this->controller::{$this->function}($this->args);
+            $_controller->{$this->function}($this->args);
+            //$this->controller::{$this->function}($this->args);
             return true;
         }
     }

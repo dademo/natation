@@ -1,0 +1,32 @@
+{# empty Twig template #}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ page_title }}</title>
+        <style>
+            .error {
+                background-color: rgb(255, 80, 80);
+                border-style: solid;
+                border-width: 10px;
+                border-color: rgb(255, 204, 0);
+                width: 75%;
+                height: auto;
+                margin: 2% 5%;
+                padding: 2% 5%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="error">
+            <p>
+                {{ errMsg }}
+            </p>
+            {% if stacktrace is defined %}
+            <p>
+                {{ stacktrace | raw }}
+            </p>
+            {% endif %}
+        </div>
+    </body>
+</html>
