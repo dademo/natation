@@ -13,12 +13,12 @@ class HelloWorld extends Controller {
         //echo 'Hello world !';
     }
 
-    public function test() {
+    public function test(array $args = array()) {
         $this->setToRender('toto.twig');
-        $this->render(array(
-            'msg' => 'Hello World !',
-            'page_title' => 'Hello World !',
-            'body_title' => 'Hello World ! (this title ><)'
+        return $this->render(array(
+                    'msg' => 'Hello World !',
+                    'page_title' => 'Hello World !',
+                    'body_title' => 'Hello World ! (this title ><)'
         ));
     }
 

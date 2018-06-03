@@ -19,14 +19,15 @@ class Router {
     private $ignoreRoutes = [];
 
     public function match($url) {
-        if($this->inIgnoreList($url)) {
+        if ($this->inIgnoreList($url)) {
             \tools\tools::getRessource($url);
         } else {
             // On supprime les '/' en début et fin de l'URL
             $trim_url = trim($url, '/');
 
             foreach ($this->customRoutes as $route) {
-                if ($route->match($trim_url)) {
+                if (($res = $route->match($trim_url)) !== false) {
+                    echo $res;
                     return;
                 }
             }
@@ -34,18 +35,31 @@ class Router {
             $arr_route = explode('/', $trim_url);
 
             if (count($arr_route) < 2) {  // Comporte au moins le contrôleur et la fonction à appeler
-                throw new RouteException($url);
+                // Si juste le contrôleur, on appelle la fonction index
+                //throw new RouteException($url);
+                $controllerName = array_shift($arr_route);
+                $controller = 'controller\\' . $controllerName;
+                $function = 'index';
             } else {
-                $controller = 'controller\\' . array_shift($arr_route);
+                $controllerName = array_shift($arr_route);
+                $controller = 'controller\\' . $controllerName;
                 $function = array_shift($arr_route);
+            }
 
-                $_controller = new $controller();
+            $_controller = new $controller();
 
+            if ($_controller->_access($function)) {
                 if (count($arr_route)) {  // S'il reste des paramètres supplémentaires
-                    $_controller->$function($arr_route);
+                    //echo $_controller->$function($arr_route);
+                    echo $_controller->$function($arr_route);
+                    return;
                 } else {
-                    $_controller->$function();
+                    //echo $_controller->$function();
+                    echo $_controller->$function();
+                    return;
                 }
+            } else {
+                throw new ForbiddenAccessException($controllerName, $function);
             }
         }
     }
@@ -53,7 +67,7 @@ class Router {
     public function addRoute(Route $route) {
         $this->customRoutes[] = $route;
     }
-    
+
     public function addIgnoreRoute(string $pathToIgnore) {
         $this->ignoreRoutes[] = $pathToIgnore;
     }
@@ -61,14 +75,14 @@ class Router {
     public static function getMethod() {
         return $_SERVER['REQUEST_METHOD'];
     }
-    
+
     private function inIgnoreList(string $url) {
-        foreach($this->ignoreRoutes as $ignoreRoute) {
-            if(strpos($url, $ignoreRoute) === 0) {
+        foreach ($this->ignoreRoutes as $ignoreRoute) {
+            if (strpos($url, $ignoreRoute) === 0) {
                 return true;
             }
         }
-        
+
         return false;
     }
 

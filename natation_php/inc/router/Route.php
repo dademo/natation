@@ -47,9 +47,9 @@ class Route {
         // On supprime les '/' en début et fin de l'URL
         $route = trim($route, '/');
 
-        $route = preg_replace('#:([\w]+)#', '([^/]+)', $route);
+        $reg_route = preg_replace('#:([\w]+)#', '([^/]+)', $this->route);
 
-        $regex = "#^$this->route$#i";
+        $regex = "#^$reg_route$#i";
 
         if (!preg_match($regex, $route, $matches)) {
             // No results
@@ -62,9 +62,9 @@ class Route {
             // On crée le controller
             $_controller = new $this->controller();
             // On exécute la fonction associée
-            $_controller->{$this->function}($this->args);
+            return $_controller->{$this->function}($this->args);
             //$this->controller::{$this->function}($this->args);
-            return true;
+            //return true;
         }
     }
 

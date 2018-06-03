@@ -50,10 +50,8 @@ abstract class Controller {
 
         // On charge le template
         $template = $twig->load($toRender);
-
-        echo $template->render($renderVars);
-
-        return;
+        
+        return $template->render($renderVars);
     }
 
     public final function setToRender(string $toRender) {
