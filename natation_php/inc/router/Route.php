@@ -43,28 +43,42 @@ class Route {
      * src: https://www.grafikart.fr/tutoriels/php/router-628
      */
     public function match(string $route) {
-        $matches = [];
-        // On supprime les '/' en début et fin de l'URL
-        $route = trim($route, '/');
+        // On vérifie que tout existe
+        if (!class_exists($this->controller, true)) {
+            throw new \exception\MissingControllerException($this->controller);
+        }
+        if (!method_exists($this->controller, $this->function)) {
+            throw new \exception\MissingControllerFunctionException($this->controller, $this->function);
+        }
 
-        $reg_route = preg_replace('#:([\w]+)#', '([^/]+)', $this->route);
+        // On crée le controller
+        $_controller = new $this->controller();
 
-        $regex = "#^$reg_route$#i";
+        // On vérifie qu'on a le drit d'accéder à la fonction
+        if ($_controller->_access($this->function)) {
+            $matches = [];
+            // On supprime les '/' en début et fin de l'URL
+            $route = trim($route, '/');
 
-        if (!preg_match($regex, $route, $matches)) {
-            // No results
-            return false;
+            $reg_route = preg_replace('#:([\w]+)#', '([^/]+)', $this->route);
+
+            $regex = "#^$reg_route$#i";
+
+            if (!preg_match($regex, $route, $matches)) {
+                // No results
+                return false;
+            } else {
+                // On supprime le chemin de la route extraite
+                array_shift($matches);
+                // Et on sauvegarde les résultats
+                $this->args = $matches;
+                // On exécute la fonction associée du contrôleur
+                return $_controller->{$this->function}($this->args);
+                //$this->controller::{$this->function}($this->args);
+                //return true;
+            }
         } else {
-            // On supprime le chemin de la route extraite
-            array_shift($matches);
-            // Et on sauvegarde les résultats
-            $this->args = $matches;
-            // On crée le controller
-            $_controller = new $this->controller();
-            // On exécute la fonction associée
-            return $_controller->{$this->function}($this->args);
-            //$this->controller::{$this->function}($this->args);
-            //return true;
+            throw new \exception\ForbiddenAccessException($this->controller, $this->function);
         }
     }
 

@@ -36,7 +36,7 @@ class Router {
 
             if (count($arr_route) < 2) {  // Comporte au moins le contrôleur et la fonction à appeler
                 // Si juste le contrôleur, on appelle la fonction index
-                //throw new RouteException($url);
+                //throw new \exception\MissingRouteException($url);
                 $controllerName = array_shift($arr_route);
                 $controller = 'controller\\' . $controllerName;
                 $function = 'index';
@@ -44,6 +44,13 @@ class Router {
                 $controllerName = array_shift($arr_route);
                 $controller = 'controller\\' . $controllerName;
                 $function = array_shift($arr_route);
+            }
+            
+            if(!class_exists($controller, true)){
+                throw new \exception\MissingControllerException($controller);
+            }
+            if(!method_exists($controller, $function)) {
+                throw new \exception\MissingControllerFunctionException($controller, $function);
             }
 
             $_controller = new $controller();
@@ -59,7 +66,7 @@ class Router {
                     return;
                 }
             } else {
-                throw new ForbiddenAccessException($controllerName, $function);
+                throw new \exception\ForbiddenAccessException($controllerName, $function);
             }
         }
     }

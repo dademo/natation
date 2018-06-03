@@ -1,16 +1,10 @@
 <?php
-
-require_once __DIR__ . '/inc/router/RouteException.php';
-require_once __DIR__ . '/inc/router/Route.php';
-require_once __DIR__ . '/inc/router/Router.php';
-
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/inc/autoload.php';
 
 use router\Router;
 use router\Route;
 use tools\tools;
-use controller\HelloWorld;
 
 /* $test = new HelloWorld();
 
@@ -42,18 +36,9 @@ try {
     ob_start();
     echo $router->match($_GET['_url']);
     // END //
-} catch (Twig_Error $ex) {
+} catch (\exception\MissingRouteException $ex) {
     ob_end_clean();
-    tools::render('inc/tools/error.twig', array(
-        'errTitle' => 'Erreur twig',
-        'subTitle' => get_class($ex),
-        'errMsg' => $ex->getMessage(),
-        'stacktrace' => nl2br($ex->getTraceAsString()),
-        'page_title' => 'Erreur twig'
-            )
-    );
-} catch (\router\RouteException $ex) {
-    ob_end_clean();
+    http_response_code(404);
     tools::render('inc/tools/error.twig', array(
         'errTitle' => 'Erreur de routage',
         'errMsg' => $ex->getMessage(),
@@ -62,8 +47,11 @@ try {
         'page_title' => 'Erreur'
             )
     );
-} catch (\router\ForbiddenAccessException $ex) {
+} catch (\exception\ForbiddenAccessException $ex) {
     ob_end_clean();
+    // see: https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP
+    // see: https://secure.php.net/manual/en/function.http-response-code.php
+    http_response_code(401);
     tools::render('inc/tools/error.twig', array(
         'errTitle' => 'Accès interdit',
         'errMsg' => $ex->getMessage(),
@@ -72,8 +60,42 @@ try {
         'page_title' => 'Erreur'
             )
     );
-} catch (Exception $ex) {
+} catch (\exception\MissingControllerException $ex) {
     ob_end_clean();
+    http_response_code(404);
+    tools::render('inc/tools/error.twig', array(
+        'errTitle' => 'Le contrôleur n\'existe pas',
+        'errMsg' => $ex->getMessage(),
+        'subTitle' => get_class($ex),
+        'stacktrace' => nl2br($ex->getTraceAsString()),
+        'page_title' => 'Erreur'
+            )
+    );
+} catch (\exception\MissingControllerFunctionException $ex) {
+    ob_end_clean();
+    http_response_code(404);
+    tools::render('inc/tools/error.twig', array(
+        'errTitle' => 'La fonction du contrôleur n\'existe pas',
+        'errMsg' => $ex->getMessage(),
+        'subTitle' => get_class($ex),
+        'stacktrace' => nl2br($ex->getTraceAsString()),
+        'page_title' => 'Erreur'
+            )
+    );
+} catch (\Twig_Error $ex) {
+    ob_end_clean();
+    http_response_code(500);
+    tools::render('inc/tools/error.twig', array(
+        'errTitle' => 'Erreur twig',
+        'subTitle' => get_class($ex),
+        'errMsg' => $ex->getMessage(),
+        'stacktrace' => nl2br($ex->getTraceAsString()),
+        'page_title' => 'Erreur twig'
+            )
+    );
+} catch (\Exception $ex) {
+    ob_end_clean();
+    http_response_code(500);
     tools::render('inc/tools/error.twig', array(
         'errTitle' => 'Exception non-gérée',
         'errMsg' => $ex->getMessage(),
@@ -82,8 +104,9 @@ try {
         'page_title' => 'Erreur'
             )
     );
-} catch (Error $ex) {
-    //ob_end_clean();
+} catch (\Error $ex) {
+    ob_end_clean();
+    http_response_code(500);
     tools::render('inc/tools/error.twig', array(
         'errTitle' => 'Erreur fatale',
         'errMsg' => $ex->getMessage(),
