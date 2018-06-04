@@ -88,8 +88,6 @@ GRANT EXECUTE ON FUNCTION public.read_only() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_afterinsertupdate_inscription() TO apache;
 
-GRANT EXECUTE ON FUNCTION public.trig_fct_competition_beforeinsertupdate_ville() TO apache;
-
 GRANT EXECUTE ON FUNCTION public.trig_fct_equipe_afterinsert_newequipe() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.trig_fct_equipe_afterupdate_debutballet() TO apache;
