@@ -16,7 +16,7 @@ for i in range(0,5):
 		# club_personne.dateInscription
 		'01/09/2017',
 		# club_personne.dateFinInscription
-		'31/06/2018'
+		'30/06/2018'
 	])
 
 
