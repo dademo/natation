@@ -21,5 +21,9 @@ class Test extends Controller {
     public function index(){
         return 'Hello !';
     }
+    
+    public function forbidden() {
+        return 'Forbidden';
+    }
 
 }
