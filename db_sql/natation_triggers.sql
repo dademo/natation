@@ -632,7 +632,7 @@ EXECUTE PROCEDURE trig_fct_personne_beforeInsertUpdate_nomPrenom();
 
 -- [[ INSERT | UPDATE ]] --
 -- On vérifie que la personne n'est pas déjà inscrite dans un club avec les périodes données
-CREATE OR REPLACE FUNCTION trig_fct_club_personne_beforeInsertUpdate_inscription()
+CREATE OR REPLACE FUNCTION trig_fct_club_personne_afterInsertUpdate_inscription()
 RETURNS trigger AS $body$
 DECLARE
 	nRes	INTEGER;
@@ -650,19 +650,20 @@ BEGIN
 		)
 	;
 
-	PERFORM checkValue_different(nRes, 0, format('Une personne est déjà inscrite pour cette période'));
+	-- Une seule inscription possible, celle actuelle. Sinon, ERREUR
+	PERFORM checkValue_different(nRes, 1, format('Une personne est déjà inscrite pour cette période (%s)', nRes));
 
 	RETURN NEW;
 END;
 $body$
 LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trig_club_personne_beforeInsertUpdate_inscription ON club_personne;
-CREATE TRIGGER trig_club_personne_beforeInsertUpdate_inscription
-BEFORE INSERT OR UPDATE
+DROP TRIGGER IF EXISTS trig_club_personne_afterInsertUpdate_inscription ON club_personne;
+CREATE TRIGGER trig_club_personne_afterInsertUpdate_inscription
+AFTER INSERT OR UPDATE
 ON club_personne
 FOR EACH ROW
-EXECUTE PROCEDURE trig_fct_club_personne_beforeInsertUpdate_inscription();
+EXECUTE PROCEDURE trig_fct_club_personne_afterInsertUpdate_inscription();
 
 -- On vérifie que la personne était bien née quand on l'a inscrite dans le club
 CREATE OR REPLACE FUNCTION trig_fct_club_personne_afterInsertUpdate_estNee()
@@ -694,6 +695,99 @@ AFTER INSERT OR UPDATE
 ON club_personne
 FOR EACH ROW
 EXECUTE PROCEDURE trig_fct_club_personne_afterInsertUpdate_estNee();
+
+-- [[ UPDATE ]] --
+
+-- On vérifie que la personne n'a pas de compétition entre l'ancienne et la nouvelle date de début
+CREATE OR REPLACE FUNCTION trig_fct_club_personne_beforeUpdate_aCompetition_dateDebut()
+RETURNS trigger AS $body$
+DECLARE
+	compet_id	INTEGER[];
+BEGIN
+
+	-- On récupère les compétitions entre l'ancienne et la nouvelle date
+	SELECT
+		ARRAY_AGG(competition.id)
+	INTO compet_id
+	FROM personne
+	INNER JOIN equipe_personne
+		ON equipe_personne.id_personne = personne.id
+	INNER JOIN equipe
+		ON equipe.id = equipe_personne.id_equipe
+	INNER JOIN competition
+		ON competition.id = equipe.id_competition
+	WHERE
+		personne.id = NEW.id_personne
+		AND competition.dateCompetition BETWEEN OLD.dateInscription AND NEW.dateInscription
+	;
+
+	IF ARRAY_LENGTH(compet_id, 1) != 0 OR ARRAY_LENGTH(compet_id, 1) IS NOT NULL THEN
+		RAISE EXCEPTION 'La personne a une compétition pour la période donnée (%)', array_to_string(_row.allClubs, ',', '*') ;
+	END IF;
+
+	RETURN NEW;
+END;
+$body$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trig_club_personne_beforeUpdate_aCompetition_dateDebut ON club_personne;
+CREATE TRIGGER trig_club_personne_beforeUpdate_aCompetition_dateDebut 
+BEFORE UPDATE
+ON club_personne
+FOR EACH ROW
+EXECUTE PROCEDURE trig_fct_club_personne_beforeUpdate_aCompetition_dateDebut();
+
+-- On vérifie que la personne n'a pas de compétition entre l'ancienne et la nouvelle date de fin
+CREATE OR REPLACE FUNCTION trig_fct_club_personne_beforeUpdate_aCompetition_dateFin()
+RETURNS trigger AS $body$
+DECLARE
+	_query		TEXT;
+	compet_id	INTEGER[];
+BEGIN
+
+	-- On récupère les compétitions entre l'ancienne et la nouvelle date
+	_query := $query$
+	SELECT
+		ARRAY_AGG(competition.id)
+	FROM personne
+	INNER JOIN equipe_personne
+		ON equipe_personne.id_personne = personne.id
+	INNER JOIN equipe
+		ON equipe.id = equipe_personne.id_equipe
+	INNER JOIN competition
+		ON competition.id = equipe.id_competition
+	WHERE
+		personne.id = $1
+	$query$;
+
+	-- Si aucune date de fin d'inscription
+	IF OLD.dateFinInscription IS NULL THEN
+		_query := _query || $query$
+		AND competition.dateCompetition > $2
+		$query$;
+	ELSE
+		_query := _query || $query$
+		AND competition.dateCompetition BETWEEN $2 AND $3
+		$query$;
+	END IF;
+
+	EXECUTE _query INTO compet_id USING NEW.id_personne, NEW.dateFinInscription, OLD.dateFinInscription;
+
+	IF ARRAY_LENGTH(compet_id, 1) != 0 OR ARRAY_LENGTH(compet_id, 1) IS NOT NULL THEN
+		RAISE EXCEPTION 'La personne a une compétition pour la période donnée (%)', array_to_string(_row.allClubs, ',', '*') ;
+	END IF;
+
+	RETURN NEW;
+END;
+$body$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trig_club_personne_beforeUpdate_aCompetition_dateFin ON club_personne;
+CREATE TRIGGER trig_club_personne_beforeUpdate_aCompetition_dateFin 
+BEFORE UPDATE
+ON club_personne
+FOR EACH ROW
+EXECUTE PROCEDURE trig_fct_club_personne_beforeUpdate_aCompetition_dateFin();
 
 
 ------------------------------------------------------------
