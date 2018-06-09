@@ -177,3 +177,13 @@ BEGIN
 END;
 $body$
 LANGUAGE plpgsql;
+
+-- Retourne un boolean pour savoir si un tableau contient la valeur NULL
+CREATE OR REPLACE FUNCTION containsNull(arr ANYARRAY)
+RETURNS boolean AS $BODY$
+	SELECT
+		(COUNT(*) != 0)
+	FROM unnest(arr) is_null
+	WHERE is_null IS NULL
+$BODY$
+LANGUAGE sql;

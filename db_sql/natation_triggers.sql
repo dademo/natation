@@ -74,45 +74,57 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION trig_fct_competition_afterUpdate_membreClub()
 RETURNS trigger AS $body$
 DECLARE
-	equipe_id	INTEGER;
-	all_clubs	INTEGER[];
+	_row		RECORD;	-- Curseur permettant d'itérer sur les résultats d'une requête
+	_equipe_id	INTEGER;
+	_allClub	INTEGER[];
 BEGIN
 	--- Pour chaque équipe
-	FOR equipe_id IN (SELECT DISTINCT equipe.id FROM equipe) LOOP
-		-- On récupère la liste des clubs des utilisateurs pour la date donnée
-		WITH RES AS (
-			SELECT
-				club.id AS club_id
-			FROM equipe_personne
-			INNER JOIN personne
-				ON personne.id = equipe_personne.id_personne
-			INNER JOIN club_personne
-				ON club_personne.id_personne = equipe_personne.id_personne
-			INNER JOIN club
-				ON club.id = club_personne.id_club
-			WHERE
-				equipe_personne.id_equipe = equipe_id
-			AND	club_personne.dateInscription < NEW.dateCompetition
-			AND  (
-				club_personne.dateFinInscription IS NULL
-			OR	club_personne.dateFinInscription > NEW.dateCompetition
-			)
-			GROUP BY club.id
-		)
-		SELECT
-			ARRAY_AGG(club_id)
-		INTO
-			all_clubs
-		FROM RES
-		;
-		-- On vérifie que les personnes font parties du même club (1 club en réponse)
-		PERFORM checkValue_different(
-			ARRAY_LENGTH(all_clubs, 1),
-			1,
-			format('Les joueurs font partie de plusieurs clubs (%s)', array_to_string(all_clubs, ',', '*') )
-		);
-	
+	FOR _row IN 
+            WITH RES AS (
+            SELECT
+                equipe.id					AS equipe_id,
+                --ARRAY_AGG(personne.id)		AS personne_id,
+                club.id						AS club_id/*,
+                club_personne.dateInscription		AS equipe_personne_dateInscription,
+                club_personne.dateFinInscription	AS equipe_personne_dateFinInscription*/
+            FROM personne
+            LEFT OUTER JOIN club_personne
+                ON club_personne.id_personne = personne.id
+                AND (CASE club_personne.dateFinInscription
+                    WHEN NULL THEN
+                    (NEW.dateCompetition > club_personne.dateInscription)
+                    ELSE
+                    (NEW.dateCompetition BETWEEN club_personne.dateInscription AND club_personne.dateFinInscription)
+                END)
+            LEFT OUTER JOIN club
+                ON club.id = club_personne.id_club
+            INNER JOIN equipe_personne
+                ON equipe_personne.id_personne = personne.id
+            INNER JOIN equipe
+                ON equipe.id = equipe_personne.id_equipe
+            INNER JOIN competition
+                ON competition.id = equipe.id_competition
+            GROUP BY equipe_id, club_id
+                )
+                SELECT
+                    equipe_id,
+                    ARRAY_AGG(club_id) AS allClub
+                    FROM RES
+                    GROUP BY equipe_id
+	LOOP
+		--FETCH _row INTO _equipe_id, _allClub;
+		IF containsNull(_row.allClub) THEN
+			RAISE EXCEPTION 'Une personne n''a pas d''équipe pour la date donnée (equipe_id: %)', _row.equipe_id;
+		END IF;
+
+
+		IF ARRAY_LENGTH(_row.allClub, 1) != 1 THEN
+			RAISE EXCEPTION 'De multiples clubs ont été trouvés pour les personnes à la date donnée (allClubs: %)', array_to_string(_row.allClubs, ',', '*') ;
+		END IF;
+
 	END LOOP;
+
+	RETURN NEW;
 END;
 $body$
 LANGUAGE plpgsql;
