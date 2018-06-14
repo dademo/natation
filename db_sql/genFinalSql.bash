@@ -31,7 +31,6 @@ fileList=(
 	natation_functions.sql
 	natation_triggers.sql
 	fixture_helpers/natation_fixtures.sql
-	natation_apache_user.sql
 );
 prerequisites_exec=(
 	fixture_helpers/genFixtures.bash
