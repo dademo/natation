@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Jugecompetition" table="jugecompetition">
+    <indexes>
+      <index name="IDX_81D2BC792F2619F9" columns="id_typejuge"/>
+      <index name="IDX_81D2BC79AD18E146" columns="id_competition"/>
+      <index name="IDX_81D2BC7950EAE44" columns="id_utilisateur"/>
+    </indexes>
+    <unique-constraints>
+      <unique-constraint name="jugecompetition_id_competition_rang_key" columns="id_competition,rang"/>
+    </unique-constraints>
+    <id name="id" type="integer" column="id">
+      <generator strategy="SEQUENCE"/>
+      <sequence-generator sequence-name="jugecompetition_id_seq" allocation-size="1" initial-value="1"/>
+    </id>
+    <field name="rang" type="integer" column="rang" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <many-to-one field="idTypejuge" target-entity="Typejuge" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_typejuge" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="idCompetition" target-entity="Competition" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_competition" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="idUtilisateur" target-entity="Utilisateur" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_utilisateur" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-many field="idEquipe" target-entity="Equipe" mapped-by="idJugecompetition" fetch="LAZY"/>
+  </entity>
+</doctrine-mapping>

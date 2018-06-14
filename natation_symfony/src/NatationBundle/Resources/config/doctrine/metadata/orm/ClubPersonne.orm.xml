@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="ClubPersonne" table="club_personne">
+    <indexes>
+      <index name="IDX_C75634633CE2470" columns="id_club"/>
+      <index name="IDX_C7563465F15257A" columns="id_personne"/>
+    </indexes>
+    <id name="id" type="integer" column="id">
+      <generator strategy="SEQUENCE"/>
+      <sequence-generator sequence-name="club_personne_id_seq" allocation-size="1" initial-value="1"/>
+    </id>
+    <field name="dateinscription" type="date" column="dateinscription" nullable="false"/>
+    <field name="datefininscription" type="date" column="datefininscription" nullable="true"/>
+    <many-to-one field="idClub" target-entity="Club" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_club" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="idPersonne" target-entity="Personne" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_personne" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
+</doctrine-mapping>

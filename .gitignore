@@ -6,3 +6,6 @@ db_sql/natation_cat.sql
 db_sql/fixture_helpers/natation_fixtures.sql
 /Template site web/HTML5Application/nbproject/private/
 /Template site web/Template site web/nbproject/private/
+
+# PHPStorm project
+.idea/*
