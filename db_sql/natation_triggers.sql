@@ -263,12 +263,13 @@ $body$
 LANGUAGE plpgsql
 ;
 
-DROP TRIGGER IF EXISTS trig_utilisateur_beforeInsertUpdate_modifMDP ON utilisateur;
-CREATE TRIGGER trig_utilisateur_beforeInsertUpdate_modifMDP
-BEFORE INSERT OR UPDATE
-ON utilisateur
-FOR EACH ROW
-EXECUTE PROCEDURE trig_fct_utilisateur_beforeInsertUpdate_modifMDP();
+-- Géré par Symfony --
+--DROP TRIGGER IF EXISTS trig_utilisateur_beforeInsertUpdate_modifMDP ON utilisateur;
+--CREATE TRIGGER trig_utilisateur_beforeInsertUpdate_modifMDP
+--BEFORE INSERT OR UPDATE
+--ON utilisateur
+--FOR EACH ROW
+--EXECUTE PROCEDURE trig_fct_utilisateur_beforeInsertUpdate_modifMDP();
 
 
 ------------------------------------------------------------

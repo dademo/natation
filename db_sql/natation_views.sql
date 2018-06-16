@@ -56,11 +56,18 @@ SELECT
 	equipe.id				AS equipe_id,
 	equipe.nom				AS equipe_nomEquipe,
 	equipe.ordrePassage			AS equipe_ordrePassage,
+	competition.id				AS competition_id,
+	competition.titre			AS competition_titre,
+	competition.dateCompetition		AS competition_dateCompetition,
 	personne.id				AS equipe_membre_id,
-	personne.nom || ' ' || personne.prenom	AS equipe_membre,
+	personne.nom				AS equipe_membre_nom,
+	personne.prenom				AS equipe_membre_prenom,
+	personne.dateNaissance			AS equipe_membre_dateNaissance,
 	club_personne.id_club			AS club_id,
 	club.nom				AS club_nom
 FROM equipe
+INNER JOIN competition
+	ON competition.id = equipe.id_competition
 INNER JOIN equipe_personne
 	ON equipe_personne.id_equipe = equipe.id
 INNER JOIN personne
@@ -81,8 +88,12 @@ SELECT
 	equipe_id,
 	equipe_nomEquipe,
 	equipe_ordrePassage,
+	competition_id,
+	competition_titre,
+	competition_dateCompetition,
 	ARRAY_AGG(equipe_membre_id)					AS equipe_membre_id,
-	ARRAY_AGG(equipe_membre)					AS equipe_membre_nom,
+	ARRAY_AGG(equipe_membre_nom || ' ' || equipe_membre_prenom)	AS equipe_membre_nom,
+	ARRAY_AGG(equipe_membre_dateNaissance)				AS equipe_membre_dateNaissance,
 	club_id,
 	club_nom
 FROM all_equipe
@@ -90,6 +101,9 @@ GROUP BY
 	equipe_id,
 	equipe_nomEquipe,
 	equipe_ordrePassage,
+	competition_id,
+	competition_titre,
+	competition_dateCompetition,
 	club_id,
 	club_nom
 ;
