@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Equipe" table="equipe">
+    <indexes>
+      <index name="IDX_2449BA15AD18E146" columns="id_competition"/>
+    </indexes>
+    <unique-constraints>
+      <unique-constraint name="equipe_id_competition_ordrepassage_key" columns="id_competition,ordrepassage"/>
+    </unique-constraints>
+    <id name="id" type="integer" column="id">
+      <generator strategy="SEQUENCE"/>
+      <sequence-generator sequence-name="equipe_id_seq" allocation-size="1" initial-value="1"/>
+    </id>
+    <field name="nom" type="string" column="nom" length="25" nullable="false">
+      <options>
+        <option name="fixed"/>
+      </options>
+    </field>
+    <field name="ordrepassage" type="integer" column="ordrepassage" nullable="false">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <field name="debut" type="datetime" column="debut" nullable="true"/>
+    <field name="visionnable" type="boolean" column="visionnable" nullable="false"/>
+    <field name="penalite" type="integer" column="penalite" nullable="true">
+      <options>
+        <option name="unsigned"/>
+      </options>
+    </field>
+    <many-to-one field="idCompetition" target-entity="Competition" fetch="LAZY">
+      <join-columns>
+        <join-column name="id_competition" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-many field="idJugecompetition" target-entity="Jugecompetition" inversed-by="idEquipe" fetch="LAZY">
+      <join-table name="equipe_jugecompetition">
+        <join-columns>
+          <join-column name="id_equipe" referenced-column-name="id"/>
+        </join-columns>
+        <inverse-join-columns>
+          <join-column name="id_jugecompetition" referenced-column-name="id"/>
+        </inverse-join-columns>
+      </join-table>
+    </many-to-many>
+    <many-to-many field="idPersonne" target-entity="Personne" inversed-by="idEquipe" fetch="LAZY">
+      <join-table name="equipe_personne">
+        <join-columns>
+          <join-column name="id_equipe" referenced-column-name="id"/>
+        </join-columns>
+        <inverse-join-columns>
+          <join-column name="id_personne" referenced-column-name="id"/>
+        </inverse-join-columns>
+      </join-table>
+    </many-to-many>
+  </entity>
+</doctrine-mapping>
