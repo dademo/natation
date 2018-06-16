@@ -3,9 +3,19 @@
 security:
 
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+    #providers:
+    #    in_memory:
+    #        memory: ~
+    
+    # see: https://auth0.com/blog/creating-your-first-symfony-app-and-adding-authentication/
+    encoders:
+        NatationAuthBundle\Entity\User: 
+            algorithm: bcrypt
+            cost: 15
+            
     providers:
-        in_memory:
-            memory: ~
+        database_users:
+            entity: { class: NatationAuthBundle:User, property: mail }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -14,6 +24,7 @@ security:
             security: false
 
         main:
+            logout_on_user_change: true
             anonymous: ~
             # activate different ways to authenticate
 
@@ -21,4 +32,10 @@ security:
             #http_basic: ~
 
             # https://symfony.com/doc/current/security/form_login_setup.html
-            #form_login: ~
+
+            guard:
+                authenticators:
+                    - form_login_authenticator
+            logout:
+                path: /logout
+                target: /

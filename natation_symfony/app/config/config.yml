@@ -3,15 +3,23 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@NatationBundle/Resources/config/services.yml" }
+    - { resource: "@NatationAuthBundle/Resources/config/services.yml" }
+    - { resource: translator_loader_fix.php }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: en
+    locale: fr
 
 framework:
     #esi: ~
-    #translator: { fallbacks: ['%locale%'] }
+    translator:
+        enabled: true
+        fallbacks: ['%locale%']
+#        paths:
+#            - '%kernel.project_dir%/app/Resources/translations'
+
+    #translator: { fallbacks: ['en'] }
     secret: '%secret%'
     router:
         resource: '%kernel.project_dir%/app/config/routing.yml'
