@@ -4,6 +4,7 @@ namespace NatationAuthBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use NatationAuthBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,10 +29,19 @@ class UserController extends Controller
 
     /**
      * @Route("/login_check", name="security_login_check")
+     * @Method({"POST"})
      */
     public function doLoginAction()
     {
+        // Nothing to do
+    }
 
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logoutAction()
+    {
+        // Nothing to do
     }
 
     /**

@@ -43,7 +43,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
 
     public function __construct()
     {
-
+        
     }
 
     public function getId()
@@ -84,7 +84,16 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
 
     public function getRoles()
     {
-        return $this->roles;
+        // Generating array of string
+        $toReturn = array();
+
+        foreach($this->roles as $role) {
+            $toReturn[] = $role->getNom();
+        }
+
+        //return array('ROLE_USER');
+        //var_dump($this->roles);
+        return $toReturn;
     }
 
     public function addRole(TypeUtilisateur $role) {
