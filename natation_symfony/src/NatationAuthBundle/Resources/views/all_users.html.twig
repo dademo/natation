@@ -1,8 +1,12 @@
 {% extends '@Natation/base.html.twig' %}
 
-{% block body %}
+{% block app_body_title %}
+    Tous les utilisateurs
+{% endblock %}
 
-<table>
+{% block app_body %}
+
+<table class="table">
     <thead>
         <tr>
             <th>id</th>
@@ -12,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-{% for user in allUsers %}
+    {% for user in allUsers %}
         <tr>
             <td>{{ user.id }}</td>
             <td>{{ user.mail }}</td>
@@ -23,7 +27,7 @@
                 {% endfor %}
             </td>
         </tr>
-{% endfor %}
+    {% endfor %}
     </tbody>
 </table>
 

@@ -14,7 +14,7 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('@Natation/Default/index.html.twig');
+        return $this->render('@Natation/index.html.twig');
     }
 
     /**

@@ -7,8 +7,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use NatationAuthBundle\Entity\Utilisateur;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
-class UserController extends Controller
+class UtilisateurController extends Controller
 {
     /**
      * @Route("/login", name="login")
@@ -82,6 +83,33 @@ class UserController extends Controller
             '@NatationAuth/all_users.html.twig',
             array(
                 'allUsers' => $allUsers
+            )
+        );
+    }
+
+    /**
+     * @Route("/user/show", name="show_user")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showUserAction()
+    {
+        /*$allUsers = $this->getDoctrine()
+            ->getRepository(Utilisateur::class)
+            ->findAll();
+
+        return $this->render(
+            '@NatationAuth/all_users.html.twig',
+            array(
+                'allUsers' => $allUsers
+            )
+        );*/
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        return $this->render(
+            '@NatationAuth/user/show.html.twig',
+            array(
+                'user' => $user
             )
         );
     }

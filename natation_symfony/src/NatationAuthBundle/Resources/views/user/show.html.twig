@@ -1,0 +1,44 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    Informations sur l'utilisateur {{ user.mail }}
+{% endblock %}
+
+{% block app_body %}
+    <table class="table">
+        <tr>
+            <th>Nom de la personne :</th>
+            <td>{{ user.personne.nom }} {{ user.personne.prenom }}</td>
+            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>Date de naissance de la personne :</th>
+            <td>{{ user.personne.dateNaissance|date('d-m-Y') }}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Adresse mail :</th>
+            <td>{{ user.mail }}</td>
+            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>R&ocirc;les :</th>
+            <td>
+                <ul>
+                {% for role in user.roles %}
+                    {# On ignore le rôle ROLE_USER #}
+                    {% if role != 'ROLE_USER' %}
+                        <li>{{ role }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+            </td>
+            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>Mot de passe :</th>
+            <th>***</th>
+            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+    </table>
+{% endblock %}

@@ -50,6 +50,16 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
      */
     private $roles;
 
+    /**
+     * @var \NatationBundle\Entity\Personne
+     *
+     * @ORM\ManyToOne(targetEntity="\NatationBundle\Entity\Personne")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id_personne", referencedColumnName="id")
+     * })
+     */
+    private $personne;
+
 
 
     /**
@@ -179,6 +189,10 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
             $toReturn[] = $role->getNom();
         }
 
+        // On ajoute le rôle par défaut: ROLE_USER (signifie que l'utilisateur est connecté)
+
+        $toReturn[] = 'ROLE_USER';
+
         //return array('ROLE_USER');
         //var_dump($this->roles);
         return $toReturn;
@@ -221,6 +235,32 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
         $this->roles->removeElement($role);
 
         return $this;
+    }
+
+
+
+    /**
+     * Set personne.
+     *
+     * @param \NatationBundle\Entity\Personne $idPersonne
+     *
+     * @return Utilisateur
+     */
+    public function setPersonne(\NatationBundle\Entity\Personne $personne)
+    {
+        $this->personne = $personne;
+
+        return $this;
+    }
+
+    /**
+     * Get personne.
+     *
+     * @return \NatationBundle\Entity\Personne
+     */
+    public function getPersonne()
+    {
+        return $this->personne;
     }
 
     /**
