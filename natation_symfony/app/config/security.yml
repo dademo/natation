@@ -9,13 +9,13 @@ security:
     
     # see: https://auth0.com/blog/creating-your-first-symfony-app-and-adding-authentication/
     encoders:
-        NatationAuthBundle\Entity\User: 
+        NatationAuthBundle\Entity\Utilisateur: 
             algorithm: bcrypt
             cost: 15
             
     providers:
         database_users:
-            entity: { class: NatationAuthBundle:User, property: mail }
+            entity: { class: NatationAuthBundle:Utilisateur, property: mail }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs

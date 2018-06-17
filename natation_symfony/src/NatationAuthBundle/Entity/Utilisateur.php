@@ -11,9 +11,9 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  * Utilisateur
  * 
  * @ORM\Table(name="utilisateur")
- * @ORM\Entity(repositoryClass="NatationAuthBundle\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="NatationAuthBundle\Repository\UtilisateurRepository")
  */
-class User implements UserInterface, AdvancedUserInterface, \Serializable
+class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
 {
     /**
      * @var int
@@ -96,7 +96,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
      *
      * @param string $mail
      *
-     * @return User
+     * @return Utilisateur
      */
     public function setMail(string $mail)
     {
@@ -141,7 +141,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
      *
      * @param string $mdp
      *
-     * @return User
+     * @return Utilisateur
      */
     public function setPassword(string $mdp)
     {
@@ -153,7 +153,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
      *
      * @param string $mdp
      *
-     * @return User
+     * @return Utilisateur
      */
     public function setMdp(string $mdp)
     {
@@ -200,7 +200,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
      *
      * @param \NatationAuthBundle\Entity\TypeUtilisateur $role
      *
-     * @return User
+     * @return Utilisateur
      */
     public function addRole(TypeUtilisateur $role)
     {
@@ -214,7 +214,7 @@ class User implements UserInterface, AdvancedUserInterface, \Serializable
      *
      * @param \NatationAuthBundle\Entity\TypeUtilisateur $role
      *
-     * @return User
+     * @return Utilisateur
      */
     public function delRole(TypeUtilisateur $role)
     {

@@ -2,17 +2,17 @@
 
 namespace NatationAuthBundle\Repository;
 
-use NatationAuthBundle\Entity\User;
+use NatationAuthBundle\Entity\Utilisateur;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
-class UserRepository extends EntityRepository // implements UserLoaderInterface
+class UtilisateurRepository extends EntityRepository
 {
     public function __construct(EntityManager $registry)
     {
-        parent::__construct($registry, new ClassMetadata(User::class));
+        parent::__construct($registry, new ClassMetadata(Utilisateur::class));
     }
 
     public function loadUserByUsername($username)

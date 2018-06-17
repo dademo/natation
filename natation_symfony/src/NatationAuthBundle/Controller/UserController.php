@@ -5,7 +5,7 @@ namespace NatationAuthBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use NatationAuthBundle\Entity\User;
+use NatationAuthBundle\Entity\Utilisateur;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -74,7 +74,7 @@ class UserController extends Controller
     public function testAction()
     {
         $allUsers = $this->getDoctrine()
-            ->getRepository(User::class)
+            ->getRepository(Utilisateur::class)
             ->findAll();
 
         //return new Response('OK');
