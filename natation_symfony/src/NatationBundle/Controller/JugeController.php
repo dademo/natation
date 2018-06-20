@@ -13,7 +13,7 @@ class JugeController extends Controller
 {
     /**
      * @Route("/juge/compet", name="juge_compet")
-     * @Security("has_role('ROLE_ADMIN')")
+     * @Security("has_role('ROLE_JUGE')")
      */
     public function jugeCompetAction()
     {

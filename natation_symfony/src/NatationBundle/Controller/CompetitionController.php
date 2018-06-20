@@ -14,7 +14,7 @@ class CompetitionController extends Controller
 {
     /**
      * @Route("/compet/all", name="all_competitions")
-     * @Security("has_role('ROLE_CREAT_COMPET')")
+     * @Security("has_role('ROLE_CREATE_COMPET')")
      */
     public function allCompetitionAction()
     {

@@ -80,7 +80,7 @@
                 <li><a href="{{ path('all_competitions') }}">Toutes les comp&eacute;titions</a></li>
                 {% endif %}
                 {% if is_granted("ROLE_ADMIN") %}
-                <li><a href="{{ path('show_user') }}">Tous les utilisateurs</a></li>
+                <li><a href="{{ path('all_users') }}">Tous les utilisateurs</a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -97,7 +97,7 @@
                     </ul>
                 </li>
                 {% else %}
-                <li><a href="{{ path('login') }}"><i class="fa fa-fw fa-lg fa-user-circle"></i> Connexion</li>
+                <li><a href="{{ path('login') }}"><i class="fa fa-fw fa-lg fa-user-circle"></i> Connexion</a></li>
                 {% endif %}
             </ul>
         </div><!--/.nav-collapse -->
