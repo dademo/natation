@@ -113,4 +113,31 @@ class UtilisateurController extends Controller
             )
         );
     }
+
+    /**
+     * @Route("/user/allUser", name="all_user")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function showAllUserAction()
+    {
+        /*$allUsers = $this->getDoctrine()
+            ->getRepository(Utilisateur::class)
+            ->findAll();
+
+        return $this->render(
+            '@NatationAuth/all_users.html.twig',
+            array(
+                'allUsers' => $allUsers
+            )
+        );*/
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        return $this->render(
+            '@NatationAuth/user/show.html.twig',
+            array(
+                'user' => $user
+            )
+        );
+    }
 }
