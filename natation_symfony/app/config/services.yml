@@ -33,3 +33,18 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+    form_login_authenticator:
+        class: NatationAuthBundle\Security\FormLoginAuthenticator
+        arguments: ["@router", "@security.password_encoder"]
+
+#    app.translatorFix:
+#        class: NatationBundle\Services\translatorFix
+#        arguments: ['@translator']
+
+    app.translatorFixer:
+        class: NatationBundle\EventSubscriber\TranslationFixer
+        tags:
+            - { name: kernel.event_listener, event: kernel.request }
+            - { name: kernel.event_listener, event: console.command }
+        #arguments: ['@translator']
+        arguments: ['@kernel']

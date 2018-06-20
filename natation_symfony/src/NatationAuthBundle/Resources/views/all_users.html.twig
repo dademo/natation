@@ -1,0 +1,34 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    Tous les utilisateurs
+{% endblock %}
+
+{% block app_body %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>mail</th>
+            <th>password</th>
+            <th>roles</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in allUsers %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.mail }}</td>
+            <td>{{ user.password }}</td>
+            <td>
+                {% for role in user.roles %}
+                    {{ role }},
+                {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

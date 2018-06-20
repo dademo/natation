@@ -18,6 +18,7 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
             new NatationBundle\NatationBundle(),
+            new NatationAuthBundle\NatationAuthBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

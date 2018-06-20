@@ -10,15 +10,23 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/")
+     * @Route("/", name="homepage")
      */
     public function indexAction()
     {
-        return $this->render('@Natation/Default/index.html.twig');
+        return $this->render('@Natation/index.html.twig');
     }
 
     /**
-     * @route("/test/{testVal}", name="test", requirements={"testVal"="\d+"})
+     * @Route("/toto", name="testpage")
+     */
+    public function totoAction()
+    {
+        return new Response('TOTO');
+    }
+
+    /**
+     * @Route("/test/{testVal}", name="test", requirements={"testVal"="\d+"})
      * @Method({"GET","POST"})
      */
     public function testAction($testVal = 10)
