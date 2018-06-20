@@ -33,6 +33,7 @@ DROP SEQUENCE IF EXISTS seq_jugeCompetition;
 DROP SEQUENCE IF EXISTS seq_lieu;
 DROP SEQUENCE IF EXISTS seq_typeJuge;
 DROP SEQUENCE IF EXISTS seq_typeUtilisateur;
+DROP SEQUENCE IF EXISTS seq_club_personne_id;
 -- 2. Adding the sequences
 CREATE SEQUENCE IF NOT EXISTS seq_competition_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_personne_id INCREMENT BY 1 START WITH 1;
@@ -43,6 +44,8 @@ CREATE SEQUENCE IF NOT EXISTS seq_jugeCompetition_id INCREMENT BY 1 START WITH 1
 CREATE SEQUENCE IF NOT EXISTS seq_lieu_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeJuge_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeUtilisateur_id INCREMENT BY 1 START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS seq_club_personne_id INCREMENT BY 1 START WITH 1;
+
 
 
 -- Création des nouvelles tables --
@@ -224,9 +227,9 @@ CREATE TABLE public.typeUtilisateur(
 -- Prépopulation
 INSERT INTO public.typeUtilisateur
 VALUES
-	(DEFAULT, 'Administrateur'),
-	(DEFAULT, 'Juge'),
-	(DEFAULT, 'Créateur de compétition')
+	(DEFAULT, 'ROLE_ADMIN'),
+	(DEFAULT, 'ROLE_JUGE'),
+	(DEFAULT, 'ROLE_CREATE_COMPET')
 ;
 
 ------------------------------------------------------------
@@ -277,11 +280,14 @@ CREATE TABLE public.equipe_personne(
 -- 0,n		-> 	0,n
 ------------------------------------------------------------
 CREATE TABLE public.club_personne(
+	-- Primary keys
+	id			INTEGER NOT NULL NEXTVAL('seq_club_personne_id '),
 	-- Foreign keys
 	id_club			INTEGER NOT NULL ,
 	id_personne		INTEGER NOT NULL ,
 	dateInscription		DATE NOT NULL ,
-	dateFinInscription	DATE 
+	dateFinInscription	DATE,
+	CONSTRAINT prk_club_personne_id PRIMARY KEY (id)
 );
 
 ------------------------------------------------------------

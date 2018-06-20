@@ -9,18 +9,18 @@ allUtilisateurs.append ([
 	# utilisateur.mail
 	'admin@bar.com',
 	# typeUtilisateur.nom
-	'Administrateur'
+	'ROLE_ADMIN'
 ])
 
 allUtilisateurs.append ([
 	'admin@bar.com',
-	'Créateur de compétition'
+	'ROLE_CREATE_COMPET'
 ])
 
 for i in range(0,6):
 	allUtilisateurs.append([
 		'foo' + str(i+1) + '@bar.com',
-		'Juge'
+		'ROLE_JUGE'
 	])
 
 req = (

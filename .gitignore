@@ -9,3 +9,6 @@ db_sql/fixture_helpers/natation_fixtures.sql
 
 # PHPStorm project
 .idea/*
+/Template site web/TestJDK10/nbproject/private/
+/Template site web/Java Test/nbproject/private/
+/Template site web/Java Test/build/
