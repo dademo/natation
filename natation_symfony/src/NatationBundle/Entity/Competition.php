@@ -3,6 +3,7 @@
 namespace NatationBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Competition
@@ -45,6 +46,24 @@ class Competition
      * })
      */
     private $idLieu;
+
+    /**
+     * @var Jugecompetition
+     *
+     * @ORM\OneToMany(targetEntity="Jugecompetition", mappedBy="idCompetition")
+     * @Assert\Count(
+     *      max = 5,
+     *      maxMessage = "You cannot specify more than {{ limit }} judges"
+     * )
+     */
+    private $idJugecompetition;
+
+    /**
+     * @var Equipe
+     *
+     * @ORM\OneToMany(targetEntity="Equipe", mappedBy="idCompetition")
+     */
+    private $idEquipe;
 
 
 
@@ -128,5 +147,53 @@ class Competition
     public function getIdLieu()
     {
         return $this->idLieu;
+    }
+
+    /**
+     * Set idJugecompetition.
+     *
+     * @param \NatationBundle\Entity\Jugecompetition[]|null $idLieu
+     *
+     * @return \NatationBundle\Entity\Jugecompetition|null
+     */
+    public function setIdJugecompetition(\NatationBundle\Entity\Jugecompetition $idJugecompetition = null)
+    {
+        $this->idJugeCompetition = $idJugecompetition;
+
+        return $this;
+    }
+
+    /**
+     * Get idJugecompetition.
+     *
+     * @return \NatationBundle\Entity\Jugecompetition|null
+     */
+    public function getIdJugecompetition()
+    {
+        return $this->idJugecompetition;
+    }
+
+    /**
+     * Set idEquipe.
+     *
+     * @param \NatationBundle\Entity\Equipe[]|null $idLieu
+     *
+     * @return \NatationBundle\Entity\Equipe|null
+     */
+    public function setIdEquipe(\NatationBundle\Entity\Equipe $idEquipe = null)
+    {
+        $this->idEquipe = $idEquipe;
+
+        return $this;
+    }
+
+    /**
+     * Get idEquipe.
+     *
+     * @return \NatationBundle\Entity\Equipe|null
+     */
+    public function getIdEquipe()
+    {
+        return $this->idEquipe;
     }
 }

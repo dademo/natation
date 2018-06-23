@@ -40,8 +40,9 @@
 <script src={{ asset('js/ie10-viewport-bug-workaround.js') }}></script>
 {% endblock %}
 
-
-
+{% block userjs %}
+    {{ parent() }}
+{% endblock %}
 
 
 {% block body %}
@@ -77,14 +78,7 @@
                 active
                 {% endif %}
                 "><a href="{{ path('homepage') }}">Accueil</a></li>
-                {% if is_granted("ROLE_JUGE") %}
-                <li class="
-                {% if '/' == app.request.pathinfo %}
-                active
-                {% endif %}
-                "><a href="{{ path('juge_compet') }}">Comp&eacute;tition</a></li>
-                {% endif %}
-                {% if is_granted("ROLE_CREATE_COMPET") or is_granted("Juge") %}
+                {% if is_granted("ROLE_CREATE_COMPET") or is_granted("ROLE_JUGE") %}
                 <li class="
                 {% if '/compet/' in app.request.pathinfo %}
                 active

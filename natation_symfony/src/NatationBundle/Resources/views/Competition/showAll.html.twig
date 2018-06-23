@@ -1,0 +1,43 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block title %}
+    Natation synchronisée - Compétition
+{% endblock %}
+
+{% block app_body_title %}
+    Toutes les compétition
+{% endblock %}
+
+{% block app_body %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for competition in competitions %}
+            <tr data-link="{{ path('show_competition', {competId: competition.id}) }}">
+                <td><a href="{{ path('show_competition', {competId: competition.id}) }}">{{ competition.titre }}</a></td>
+                <td>{{ competition.dateCompetition|date("d-m-Y") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_granted('ROLE_CREATE_COMPET') %}
+    <a href="{{ path('new_competition') }}">
+        <button class="btn btn-primary">{{ "Create a new competition"|trans }}</button>
+    </a>
+    {% endif %}
+{% endblock %}
+
+{% block userjs %}
+    {{ parent() }}
+    <script>
+        $('table.table tr').click(function(){
+            window.location.href = $(this).data('link');
+        });
+    </script>
+{% endblock %}

@@ -134,7 +134,7 @@ class UtilisateurController extends Controller
     }
 
     /**
-     * @Route("/user/show/{userId}", name="show_user")
+     * @Route("/user/show/{userId}", name="show_user", requirements={"userId"="\d+"})
      * @Security("has_role('ROLE_ADMIN')")
      */
     public function showUserAction(int $userId)
@@ -152,7 +152,7 @@ class UtilisateurController extends Controller
     }
 
     /**
-     * @Route("/user/update/{userId}/userMail", name="update_userMail")
+     * @Route("/user/update/{userId}/userMail", name="update_userMail", requirements={"userId"="\d+"})
      * @Security("has_role('ROLE_ADMIN')")
      */
     public function updateUserMail(Request $request, int $userId)
@@ -239,7 +239,7 @@ class UtilisateurController extends Controller
     }
 
     /**
-     * @Route("/user/update/{userId}/userPassword", name="update_userPassword")
+     * @Route("/user/update/{userId}/userPassword", name="update_userPassword", requirements={"userId"="\d+"})
      * @Security("has_role('ROLE_ADMIN')")
      */
     public function updateUserPassword(Request $request, int $userId)
@@ -328,7 +328,7 @@ class UtilisateurController extends Controller
     }
 
     /**
-     * @Route("/user/update/{userId}/userRoles", name="update_userRoles")
+     * @Route("/user/update/{userId}/userRoles", name="update_userRoles", requirements={"userId"="\d+"})
      * @Security("has_role('ROLE_ADMIN')")
      */
     public function updateUserRoles(Request $request, int $userId)

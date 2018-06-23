@@ -65,7 +65,7 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
     /**
      * @var \NatationBundle\Entity\Personne
      *
-     * @ORM\ManyToOne(targetEntity="\NatationBundle\Entity\Personne")
+     * @ORM\OneToOne(targetEntity="\NatationBundle\Entity\Personne")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_personne", referencedColumnName="id")
      * })
