@@ -158,3 +158,25 @@ table .bold_elems {
 .table-hover > tbody > tr:hover {
   background-color: #f5f5f599;
 }
+
+.alert {
+  /*opacity: 0.50;*/
+  filter: alpha(opacity=60);
+}
+
+.alert-success {
+  background-color: #dff0d899;
+}
+.alert-info {
+  background-color: #d9edf799;
+}
+.alert-warning {
+  background-color: #fcf8e399;
+}
+.alert-danger {
+  background-color: #f2dede99;
+}
+
+.fa-times {
+  color: red;
+}

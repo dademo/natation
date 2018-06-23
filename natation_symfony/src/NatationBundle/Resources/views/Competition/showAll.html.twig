@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block app_body_title %}
-    Toutes les compétition
+    Toutes les comp&eacute;titions
 {% endblock %}
 
 {% block app_body %}
-    <table class="table table-hover">
+    <table class="table table-hover" id="all_compet">
         <thead>
             <tr>
                 <th>Titre</th>
@@ -19,7 +19,7 @@
         <tbody>
             {% for competition in competitions %}
             <tr data-link="{{ path('show_competition', {competId: competition.id}) }}">
-                <td><a href="{{ path('show_competition', {competId: competition.id}) }}">{{ competition.titre }}</a></td>
+                <td><a href="{{ path('show_competition', {competId: competition.id}) }}"  title="Voir la comp&eacute;tition">{{ competition.titre }}</a></td>
                 <td>{{ competition.dateCompetition|date("d-m-Y") }}</td>
             </tr>
             {% endfor %}
@@ -35,9 +35,24 @@
 
 {% block userjs %}
     {{ parent() }}
+    <!-- Sélection au clic sur la ligne -->
     <script>
         $('table.table tr').click(function(){
             window.location.href = $(this).data('link');
         });
     </script>
+
+    <!-- Création d'une datatable -->
+    <script>
+    $(document).ready( function () {
+        $('#all_compet').DataTable({
+            language: {
+                url: '{{ asset("datatable_langs/fr.lang.json") }}'
+                //"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json"
+            }
+        });
+        
+    } );
+    </script>
+
 {% endblock %}
