@@ -9,17 +9,30 @@
         <tr>
             <th>Nom de la personne :</th>
             <td>{{ user.personne.nom }} {{ user.personne.prenom }}</td>
-            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+            <td></td>
         </tr>
         <tr>
             <th>Date de naissance de la personne :</th>
             <td>{{ user.personne.dateNaissance|date('d-m-Y') }}</td>
+            {% if app.user.id != user.id or app.request.get('_route') == 'show_curr_user' %}
             <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Adresse mail :</th>
             <td>{{ user.mail }}</td>
-            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% if app.user.id != user.id or app.request.get('_route') == 'show_curr_user' %}
+            <td>
+                <a href="
+                    {% if app.request.get('_route') == 'show_curr_user' %}
+                        {{ path('update_currUserMail') }}
+                    {% endif %}
+                    {% if app.request.get('_route') == 'show_user' %}
+                        {{ path('update_userMail', {userId: user.id}) }}
+                    {% endif %}
+                "><i class="fa fa-fw fa-edit"></i></a>
+            </td>
+            {% endif %}
         </tr>
         <tr>
             <th>R&ocirc;les :</th>
@@ -33,12 +46,29 @@
                 {% endfor %}
                 </ul>
             </td>
-            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% if app.user.id != user.id or app.request.get('_route') == 'show_curr_user' %}
+            <td>
+            {% if app.request.get('_route') == 'show_user' %}
+                <a href="{{ path('update_userRoles', {userId: user.id}) }}"><i class="fa fa-fw fa-edit"></i></a>
+            {% endif %}
+            </td>
+            {% endif %}
         </tr>
         <tr>
             <th>Mot de passe :</th>
             <th>***</th>
-            <td><a href="#"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% if app.user.id != user.id or app.request.get('_route') == 'show_curr_user' %}
+            <td>
+                <a href="
+                    {% if app.request.get('_route') == 'show_curr_user' %}
+                        {{ path('update_currUserPassword') }}
+                    {% endif %}
+                    {% if app.request.get('_route') == 'show_user' %}
+                        {{ path('update_userPassword', {userId: user.id}) }}
+                    {% endif %}
+                "><i class="fa fa-fw fa-edit"></i></a>
+            </td>
+            {% endif %}
         </tr>
     </table>
 {% endblock %}

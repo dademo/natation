@@ -4,12 +4,15 @@ namespace NatationAuthBundle\Repository;
 
 use NatationAuthBundle\Entity\TypeUtilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+//use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
-class ProductRepository extends ServiceEntityRepository
+class TypeUtilisateurRepository extends EntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(EntityManager $registry)
     {
-        parent::__construct($registry, Product::class);
+        parent::__construct($registry, new ClassMetadata(TypeUtilisateur::class));
     }
 }

@@ -1,0 +1,2 @@
+The email '{{ value }}' is not a valid email.: L'adresse mail '{{ value }}' n'est pas une adresse mail valide.
+Your password must be at least {{ limit }} characters long: Votre mot de passe doit faire au moins {{ limit }} caractères

@@ -1,0 +1,25 @@
+{% extends '@Natation/base.html.twig' %}
+
+{# https://stackoverflow.com/questions/39945154/symfony-3-update-roles-user-with-form #}
+
+{% block app_body_title %}
+    {{ form_title }}
+{% endblock %}
+
+{% block app_body %}
+    {# FORM #}
+
+    {% set formChil = form.roles.children %}
+
+    {{ form_start(form) }}
+    
+        {% for role in formChil %}
+            {% if role.vars.value in user.roles %}
+                {{ form_row(role, {'attr' : {'checked':true}}) }}
+            {% else %}
+                {{ form_row(role, {'attr' : {'checked':false}}) }}
+            {% endif %}
+        {% endfor %}
+
+        {{ form_end(form) }}
+{% endblock %}

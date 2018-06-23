@@ -7,6 +7,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 //use Symfony\Brodge\Doctrine\Security\User\UserLoaderInterface;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
+
 /**
  * Utilisateur
  * 
@@ -29,6 +32,11 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
      * @var string
      *
      * @ORM\Column(type="string", length=50, unique=true, nullable=false)
+     * @Assert\NotBlank()
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     private $mail;
 
@@ -36,6 +44,10 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
      * @var string
      *
      * @ORM\Column(type="string", length=60, nullable=false)
+     * @Assert\Length(
+     *      min = 6,
+     *      minMessage = "Your password must be at least {{ limit }} characters long",
+     * )
      */
     private $mdp;
 
@@ -233,6 +245,21 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
     public function delRole(TypeUtilisateur $role)
     {
         $this->roles->removeElement($role);
+
+        return $this;
+    }
+
+
+    /**
+     * Set roles
+     *
+     * @param \NatationAuthBundle\Entity\TypeUtilisateur[] $role
+     *
+     * @return Utilisateur
+     */
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
 
         return $this;
     }
