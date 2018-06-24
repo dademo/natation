@@ -13,18 +13,18 @@ allJugeCompetition.append([
 # competition.titre
 	'TestCompetition',
 # utilisateur.mail
-	'admin@bar.com',
+	'foo1@bar.com',
 # jugeCompetition.rang
 	-1
 ])
 
-for i in range(0,5):
+for i in range(1,6):
 	allJugeCompetition.append([
 		'DEFAULT',
 		'Juge',
 		'TestCompetition',
 		'foo' + str(i+1) + '@bar.com',
-		(i + 1)
+		(i)
 	])
 
 req = (

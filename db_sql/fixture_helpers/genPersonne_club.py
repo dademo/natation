@@ -5,7 +5,7 @@
 
 allPersonnes = []
 
-for i in range(0,5):
+for i in range(0,20):
 	allPersonnes.append([
 		# club.nom
 		'TestClub',
@@ -22,6 +22,7 @@ for i in range(0,5):
 
 req = (
 		'(\n' + 
+		'DEFAULT,\n' + 
 		'\t(SELECT club.id FROM club WHERE club.nom = \'' + personne[0] + '\'),\n' + 
 		'\t(SELECT personne.id FROM personne WHERE personne.nom = \'' + personne[1] + '\' AND personne.prenom = \'' + personne[2] + '\'),\n' + 
 		'\tTO_DATE(\'' + personne[3] + '\', \'dd/mm/yyyy\'),\n' + 

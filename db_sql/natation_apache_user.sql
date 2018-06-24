@@ -1,10 +1,10 @@
-CREATE USER apache WITH PASSWORD 'apache';
+GRANT EXECUTE ON FUNCTION public.armor(bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.armor(bytea, text[], text[]) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.armor(bytea) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.checkvalue_different(tocheck anyelement, comparison anyelement, onexceptiontext character varying) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.containsnull(arr anyarray) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.crypt(text, text) TO apache;
 
@@ -14,9 +14,9 @@ GRANT EXECUTE ON FUNCTION public.decrypt(bytea, bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.decrypt_iv(bytea, bytea, bytea, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.digest(text, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.digest(bytea, text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.digest(text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.encrypt(bytea, bytea, text) TO apache;
 
@@ -26,9 +26,9 @@ GRANT EXECUTE ON FUNCTION public.gen_random_bytes(integer) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.gen_random_uuid() TO apache;
 
-GRANT EXECUTE ON FUNCTION public.gen_salt(text, integer) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.gen_salt(text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.gen_salt(text, integer) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.getequipeclub(idequipe integer) TO apache;
 
@@ -52,15 +52,15 @@ GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea) TO apache;
 
+GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text, text) TO apache;
+
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text, text) TO apache;
+GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt(text, bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt(text, bytea, text) TO apache;
-
-GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt(text, bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea, text) TO apache;
 
@@ -74,19 +74,29 @@ GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text, text) TO apa
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text) TO apache;
+GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text, text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.nothing() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.read_only() TO apache;
 
+GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_afterinsertupdate_estnee() TO apache;
+
 GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_afterinsertupdate_inscription() TO apache;
+
+GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_beforeinsertupdate_inscription() TO apache;
+
+GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_beforeupdate_acompetition_datedebut() TO apache;
+
+GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_beforeupdate_acompetition_datefin() TO apache;
+
+GRANT EXECUTE ON FUNCTION public.trig_fct_competition_afterupdate_membreclub() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.trig_fct_equipe_afterinsert_newequipe() TO apache;
 
@@ -110,6 +120,8 @@ GRANT EXECUTE ON FUNCTION public.trig_fct_utilisateur_beforeinsertupdate_modifmd
 
 GRANT ALL ON SEQUENCE public.seq_club_id TO apache;
 
+GRANT ALL ON SEQUENCE public.seq_club_personne_id TO apache;
+
 GRANT ALL ON SEQUENCE public.seq_competition_id TO apache;
 
 GRANT ALL ON SEQUENCE public.seq_equipe_id TO apache;
@@ -126,9 +138,13 @@ GRANT ALL ON SEQUENCE public.seq_typeutilisateur_id TO apache;
 
 GRANT ALL ON SEQUENCE public.seq_utilisateur_id TO apache;
 
+GRANT ALL ON TABLE public.all_res_club TO apache;
+
 GRANT ALL ON TABLE public.club TO apache;
 
 GRANT ALL ON TABLE public.club_personne TO apache;
+
+GRANT ALL ON TABLE public.compet_id TO apache;
 
 GRANT ALL ON TABLE public.competition TO apache;
 
