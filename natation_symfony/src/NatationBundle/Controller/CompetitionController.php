@@ -167,17 +167,25 @@ class CompetitionController extends Controller
             try {
                 
                 $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->getConnection()->beginTransaction();
+                $entityManager->getConnection()->setAutoCommit(false);
                 // Ajout des nouveaux juges
                 $entityManager->persist($competition);
                 $entityManager->flush();
+                $entityManager->getConnection()->commit();
         
                 return $this->redirectToRoute('show_competition_juges', array(
                     'competId' => $competId
                 ));
             } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $ex) {
                 $alerts[] = 'Une valeur est dupliquée ('  .$ex->getMessage() . ')';
+                $this->getDoctrine()->getManager()->getConnection()->rollBack();
             } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
                 $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                $this->getDoctrine()->getManager()->getConnection()->rollBack();
+            } catch (\PDOException $ex) {
+                $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                $this->getDoctrine()->getManager()->getConnection()->rollBack();
             }
         }
 
