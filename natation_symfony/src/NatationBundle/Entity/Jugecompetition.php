@@ -4,10 +4,12 @@ namespace NatationBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 /**
  * Jugecompetition
  *
- * @ORM\Table(name="jugecompetition", uniqueConstraints={@ORM\UniqueConstraint(name="jugecompetition_id_competition_rang_key", columns={"id_competition", "rang"})}, indexes={@ORM\Index(name="IDX_81D2BC792F2619F9", columns={"id_typejuge"}), @ORM\Index(name="IDX_81D2BC79AD18E146", columns={"id_competition"}), @ORM\Index(name="IDX_81D2BC7950EAE44", columns={"id_utilisateur"})})
+ * @ORM\Table(name="jugecompetition", uniqueConstraints={@ORM\UniqueConstraint(name="jugecompetition_id_competition_rang_key", columns={"id_competition", "rang"}), @ORM\UniqueConstraint(name="jugecompetition_id_utilisateur_rang_key", columns={"id_utilisateur", "rang"}), @ORM\UniqueConstraint(name="jugecompetition_id_competition_id_utilisateur_key", columns={"id_competition", "id_utilisateur"})}, indexes={@ORM\Index(name="IDX_81D2BC792F2619F9", columns={"id_typejuge"}), @ORM\Index(name="IDX_81D2BC79AD18E146", columns={"id_competition"}), @ORM\Index(name="IDX_81D2BC7950EAE44", columns={"id_utilisateur"})})
  * @ORM\Entity
  */
 class Jugecompetition
@@ -18,7 +20,7 @@ class Jugecompetition
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="SEQUENCE")
-     * @ORM\SequenceGenerator(sequenceName="jugecompetition_id_seq", allocationSize=1, initialValue=1)
+     * @ORM\SequenceGenerator(sequenceName="seq_jugeCompetition_id", allocationSize=1, initialValue=1)
      */
     private $id;
 

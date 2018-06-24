@@ -8,10 +8,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
+use NatationBundle\Entity\Utilisateur;
 
 
 class CompetitionController extends Controller
@@ -120,24 +122,69 @@ class CompetitionController extends Controller
      * @Route("/compet/set/{competId}/judgeList", name="set_competition_juges", requirements={"competId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
      */
-    public function setJugecompetitionAction(int $competId)
+    public function setJugecompetitionAction(Request $request, int $competId)
     {
+        $alerts = array();
         $competition = $this->getDoctrine()
             ->getRepository(Competition::class)
             ->find($competId);
 
-        // https://www.doctrine-project.org/api/orm/latest/Doctrine/ORM/EntityRepository.html#method_findBy
-        /*$allJugecompetition = $this->getDoctrine()
-            ->getRepository(Jugecompetition::class)
-            ->findBy(
-                ''
-            );*/
+        if ($request->isMethod('POST')) {
 
-        $rawSql = "SELECT
-            jugeCompetition.id
-            FROM jugeCompetition
-            INNER JOIN utilisateur
-                ON utilisateur.id = jugeCompetition.id_utilisateur
+            $juges = \json_decode($_POST["all_arbitres"], true);
+            $allJuges = [];
+
+            foreach($juges as $juge) {
+                // Obtention du juge s'il existe
+                $newJuge = $this->getDoctrine()
+                    ->getRepository(Jugecompetition::class)
+                    ->findOneBy(array(
+                        'idCompetition' => $competition,
+                        'rang' => $juge['rangJuge']
+                    ));
+                if($newJuge === NULL) {
+                    $newJuge = new JugeCompetition();
+                    $newJuge->setRang($juge['rangJuge']);
+                    $newJuge->setIdCompetition($competition);
+                }
+                $newJuge->setIdTypejuge(
+                    $this->getDoctrine()
+                    ->getRepository(Typejuge::class)
+                    ->findOneBy(array(
+                        'nom' => $juge['typejuge']
+                    ))
+                );
+                $newJuge->setIdUtilisateur(
+                    $this->getDoctrine()
+                    ->getRepository(Utilisateur::class)
+                    ->find($juge['idUtilisateur'])
+                );
+                $allJuges[] = $newJuge;
+            }
+
+            $competition->setIdJugecompetition($allJuges);
+
+            try {
+                
+                $entityManager = $this->getDoctrine()->getManager();
+                // Ajout des nouveaux juges
+                $entityManager->persist($competition);
+                $entityManager->flush();
+        
+                return $this->redirectToRoute('show_competition_juges', array(
+                    'competId' => $competId
+                ));
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $ex) {
+                $alerts[] = 'Une valeur est dupliquée ('  .$ex->getMessage() . ')';
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+            }
+        }
+
+        // https://www.doctrine-project.org/api/orm/latest/Doctrine/ORM/EntityRepository.html#method_findBy
+            $rawSql = "SELECT
+                utilisateur.id
+            FROM utilisateur
             INNER JOIN utilisateur_typeUtilisateur
                 ON utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id
             INNER JOIN typeUtilisateur
@@ -147,17 +194,17 @@ class CompetitionController extends Controller
 
         $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
         $stmt->execute([]);
-        $_allJugecompetition = $stmt->fetchAll();
+        $_allJuges = $stmt->fetchAll();
 
-        $tmpAllJugecompetition = array();
-        foreach($_allJugecompetition as $val) {
-            $tmpAllJugecompetition[] = $val['id'];
+        $tmpAllJuges = array();
+        foreach($_allJuges as $val) {
+            $tmpAllJuges[] = $val['id'];
         }
 
-        $allJugecompetition = $this->getDoctrine()
-            ->getRepository(JugeCompetition::class)
+        $allJuges = $this->getDoctrine()
+            ->getRepository(Utilisateur::class)
             ->findBy(array(
-                'id' => $tmpAllJugecompetition
+                'id' => $tmpAllJuges
             ));
 /*
         $q = $this->getDoctrine()
@@ -186,20 +233,19 @@ class CompetitionController extends Controller
         $allCompetJugeArbitres = array();
         foreach($competition->getIdJugecompetition() as $juge) {
             if($juge->getIdTypeJuge()->getNom() == 'Juge') {
-                $allCompetJuges[$juge->getId()] = $juge->getRang();
+                $allCompetJuges[$juge->getIdUtilisateur()->getId()] = $juge->getRang();
             } else {
-                $allCompetJugeArbitres[$juge->getId()] = $juge->getRang();
+                $allCompetJugeArbitres[$juge->getIdUtilisateur()->getId()] = $juge->getRang();
             }
         }
 
-            //$form["username"]->getData();
-
         return $this->render('@Natation/Competition/setJugeForm.html.twig', array(
             'competition' => $competition,
-            'allJugeCompetition' => $allJugecompetition,
+            'allJuges' => $allJuges,
             'allTypeJuge' => $allTypeJuge,
             'allCompetJuge' => $allCompetJuges,
             'allCompetJugeArbitres' => $allCompetJugeArbitres,
+            'alerts' => $alerts,
         ));
     }
 

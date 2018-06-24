@@ -25,7 +25,6 @@
         <th>Rang</th>
         <th>Nom</th>
         <th>Type de juge</th>
-        <th></th>
     </thead>
     <tbody>
     {% for jugeCompetition in allJugeCompetition %}
@@ -39,9 +38,9 @@
             </th>
             <td>{{ jugeCompetition.idUtilisateur.idPersonne.nom }} {{ jugeCompetition.idUtilisateur.idPersonne.prenom }}</td>
             <td>{{ jugeCompetition.idTypejuge.nom }}</td>
-            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a> <a href="#" title="Supprimer"><i class="fa fa-fw fa-times"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>
     </table>
+    <a href="{{ path('set_competition_juges', {competId: competition.id}) }}"><button class="btn btn-primary">Modifier</button></a>
 {% endblock %}

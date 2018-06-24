@@ -19,7 +19,7 @@ class Competition
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="SEQUENCE")
-     * @ORM\SequenceGenerator(sequenceName="competition_id_seq", allocationSize=1, initialValue=1)
+     * @ORM\SequenceGenerator(sequenceName="seq_competition_id", allocationSize=1, initialValue=1)
      */
     private $id;
 
@@ -48,9 +48,9 @@ class Competition
     private $idLieu;
 
     /**
-     * @var Jugecompetition
+     * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="Jugecompetition", mappedBy="idCompetition")
+     * @ORM\OneToMany(targetEntity="Jugecompetition", mappedBy="idCompetition",cascade={"persist"})
      * @Assert\Count(
      *      max = 5,
      *      maxMessage = "You cannot specify more than {{ limit }} judges"
@@ -154,11 +154,11 @@ class Competition
      *
      * @param \NatationBundle\Entity\Jugecompetition[]|null $idLieu
      *
-     * @return \NatationBundle\Entity\Jugecompetition|null
+     * @return \NatationBundle\Entity\Jugecompetition[]|null
      */
-    public function setIdJugecompetition(\NatationBundle\Entity\Jugecompetition $idJugecompetition = null)
+    public function setIdJugecompetition(array $idJugecompetition = null)
     {
-        $this->idJugeCompetition = $idJugecompetition;
+        $this->idJugecompetition = $idJugecompetition;
 
         return $this;
     }

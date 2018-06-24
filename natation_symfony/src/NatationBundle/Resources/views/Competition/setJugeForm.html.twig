@@ -5,6 +5,13 @@
 {% endblock %}
 
 {% block app_body %}
+    {% if alerts|length > 0 %}
+        <div class="alert alert-warning" role="alert">
+            {% for alert in alerts %}
+                <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{ alert }} <br/>
+            {% endfor %}
+        </div>
+    {% endif %}
     <label id="nJuge"></label><br/>
     <label id="nJugeArbitre"></label>
 
@@ -13,7 +20,7 @@
 
     <input type="submit" class="btn btn-primary" name="bSubmit" value="Valider" style="margin-bottom: 15px;"/>
 
-    <input type="hidden" name="all_arb" id='all_arb'/>
+    <input type="hidden" name="all_arbitres" id='all_arbitres'/>
 
     <table id="all_juges" class="table table-hover">
         <thead>
@@ -26,7 +33,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for juge in allJugeCompetition %}
+            {% for juge in allJuges %}
             <tr data-jugeId="{{ juge.id }}">
                 <td>
                     <input class="form-control juge" type="checkbox" value="{{ allTypeJuge['Juge'] }}"
@@ -42,8 +49,8 @@
                     {% else %}
                         disabled
                     {% endif %} min="0" max="5"/></td>
-                <td>{{ juge.idUtilisateur.idPersonne.nom }}</td>
-                <td>{{ juge.idUtilisateur.idPersonne.prenom }}</td>
+                <td>{{ juge.idPersonne.nom }}</td>
+                <td>{{ juge.idPersonne.prenom }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -66,98 +73,108 @@
             }
         });
 
-        $allJugeCbx = [];
-        $allJugeArbCbx = [];
-        $allJugeRangInput = [];
-        $allJugeId = [];
+        var $allJugesObj = [];
 
-        nJugeCheck = 0;
-        nJugeArbCheck = 0;
+        var nJugeCheck = 0;
+        var nJugeArbCheck = 0;
 
-        // INIT //
-        $('#all_juges').children('tbody').children().each(function(index, element) {
-            // Touts les status des checkboxes Juge
-            $allJugeCbx.push($(element).find(':nth-child(1)>input'));
-            //$jugeStatus = $(element).find(':nth-child(1)>input').prop('checked');
-            // Touts les status des checkboxes Juge-arbitre
-            $allJugeArbCbx.push($(element).find(':nth-child(2)>input'));
-            //$jugeArbitreStatut = $(element).find(':nth-child(2)>input').prop('checked');
-            // Touts les status des input rang
-            $allJugeRangInput.push($(element).find(':nth-child(3)>input'));
-            //$rang = $(element).find(':nth-child(3)>input');
-            // Info sur la ligne
-            $allJugeId.push($(element).data('jugeid'));
-
+        // Init function
+        function _tableRow_get(element) {
+            var $_var = {
+                // vars
+                jugeCbx: $(element).find(':nth-child(1)>input'),
+                jugeArbCbx: $(element).find(':nth-child(2)>input'),
+                rangJugeInput: $(element).find(':nth-child(3)>input'),
+                jugeId: $(element).data('jugeid'),
+                // functions
+                getJugeCbx: function() { return $(this.jugeCbx).prop('checked'); },
+                getJugeArbCbx: function() { return $(this.jugeArbCbx).prop('checked'); },
+                getJugeRang: function() { return (this.getJugeCbx())? this.rangJugeInput.val() : ((this.getJugeArbCbx())? -1 : 0); },
+                getJugeId: function() { return this.jugeId; }
+            };
+            
+            // Triggers
             // Juge
-            if ($($allJugeCbx[index]).prop('checked')) {
-                nJugeCheck++;
-                $allJugeArbCbx[index].prop('disabled', true);
-            }
-
-            // Juge-arbitre
-            if ($($allJugeArbCbx[index]).prop('checked')) {
-                nJugeArbCheck++;
-                $allJugeCbx[index].prop('disabled', true);
-                $allJugeRangInput[index].prop('disabled', true);
-            }
-        });
-
-        $($allJugeCbx).each(function(index, element) {
-            $(element).change(function() {
-                if(this.checked) {
-                    // check
-                    nJugeCheck++;
-                    $allJugeArbCbx[index].prop('disabled', true);
+            $($_var.jugeCbx).change(function() {
+                if(nJugeCheck >= 5 && this.checked) {
+                    this.checked = false;
                 } else {
-                    // decheck
-                    nJugeCheck--;
-                    $allJugeArbCbx[index].prop('disabled', false);
+                    if(this.checked) {
+                        // check
+                        nJugeCheck++;
+                        $_var.jugeArbCbx.prop('disabled', true);
+                        $_var.rangJugeInput.prop('disabled', false);
+                    } else {
+                        // decheck
+                        nJugeCheck--;
+                        $_var.jugeArbCbx.prop('disabled', false);
+                        $_var.rangJugeInput.prop('disabled', true);
+                    }
                 }
                 $('#nJuge').text(nJugeCheck + ' juges sélectionnés');
             });
-        });
-
-        $($allJugeArbCbx).each(function(index, element) {
-            $(element).change(function() {
-                if(this.checked) {
-                    nJugeArbCheck++;
-                    $allJugeCbx[index].prop('disabled', true);
-                    $allJugeRangInput[index].prop('disabled', true);
+            // Juge-arbitre
+            $($_var.jugeArbCbx).change(function() {
+                if(nJugeArbCheck >= 1 && this.checked) {
+                    this.checked = false;
                 } else {
-                    nJugeArbCheck--;
-                    $allJugeCbx[index].prop('disabled', false);
-                    $allJugeRangInput[index].prop('disabled', false);
+                    if(this.checked) {
+                        nJugeArbCheck++;
+                        $_var.jugeCbx.prop('disabled', true);
+                    } else {
+                        nJugeArbCheck--;
+                        $_var.jugeCbx.prop('disabled', false);
+                    }
+                    $('#nJugeArbitre').text(nJugeArbCheck + ' juges-arbitres sélectionnés');
                 }
-                $('#nJugeArbitre').text(nJugeArbCheck + ' juges-arbitres sélectionnés');
             });
+
+            //Render
+            // Juge
+            if ($_var.jugeCbx.prop('checked')) {
+                nJugeCheck++;
+                $_var.jugeArbCbx.prop('disabled', true);
+            }
+
+            // Juge-arbitre
+            if ($_var.jugeArbCbx.prop('checked')) {
+                nJugeArbCheck++;
+                $_var.jugeCbx.prop('disabled', true);
+                $_var.rangJugeInput.prop('disabled', true);
+            }
+            
+            return $_var;
+        }
+
+        // INIT //
+        $('#all_juges').children('tbody').children().each(function(index, element) {
+            $allJugesObj.push(_tableRow_get(element));
         });
 
         $('#form').submit(function(event) {
             //event.preventDefault();
+            //event.preventDefault();
             // Compilation des résultats
             res = [];
 
-            $($allJugeCbx).each(function(index, element) {
-                if(element.checked) {
-                    res.append({
-                        typeJuge: 'Juge',
-                        rangJuge: allJugeRangInput[index].val(),
-                        idJuge: allJugeId[index]
+            $($allJugesObj).each(function(index, element) {
+                if(element.getJugeCbx()) {
+                    res.push({
+                        typejuge: 'Juge',
+                        rangJuge: element.getJugeRang(),
+                        idUtilisateur: element.getJugeId()
+                    });
+                }
+                if(element.getJugeArbCbx()) {
+                    res.push({
+                        typejuge: 'Juge-arbitre',
+                        rangJuge: element.getJugeRang(),
+                        idUtilisateur: element.getJugeId()
                     });
                 }
             });
 
-            $($allJugeArbCbx).each(function(index, element) {
-                if(element.checked) {
-                    res.append({
-                        typeJuge: 'Juge-arbitre',
-                        rangJuge: -1,
-                        idJuge: allJugeId[index]
-                    });
-                }
-            });
-
-            $('#all_arb').val(res);
+            $('#all_arbitres').val(JSON.stringify(res));
 
             return true;
         });
