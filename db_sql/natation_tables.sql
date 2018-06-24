@@ -29,10 +29,10 @@ DROP SEQUENCE IF EXISTS seq_personne_id;
 DROP SEQUENCE IF EXISTS seq_utilisateur_id;
 DROP SEQUENCE IF EXISTS seq_equipe_id;
 DROP SEQUENCE IF EXISTS seq_club_id;
-DROP SEQUENCE IF EXISTS seq_jugeCompetition;
-DROP SEQUENCE IF EXISTS seq_lieu;
-DROP SEQUENCE IF EXISTS seq_typeJuge;
-DROP SEQUENCE IF EXISTS seq_typeUtilisateur;
+DROP SEQUENCE IF EXISTS seq_jugeCompetition_id;
+DROP SEQUENCE IF EXISTS seq_lieu_id;
+DROP SEQUENCE IF EXISTS seq_typeJuge_id;
+DROP SEQUENCE IF EXISTS seq_typeUtilisateur_id;
 DROP SEQUENCE IF EXISTS seq_club_personne_id;
 -- 2. Adding the sequences
 CREATE SEQUENCE IF NOT EXISTS seq_competition_id INCREMENT BY 1 START WITH 1;
@@ -165,15 +165,17 @@ CREATE TABLE public.jugeCompetition(
 	rang		INT  NOT NULL ,	-- -1 -> juge-arbitre
 	-- Constraints
 	CONSTRAINT prk_jugeCompetition_id PRIMARY KEY (id),
-	UNIQUE(id_competition, rang)	-- Un seul juge du même rang pour la même compétition
+	UNIQUE(id_competition, rang) DEFERRABLE INITIALLY DEFERRED,		-- Un seul juge du même rang pour la même compétition
+	UNIQUE(id_utilisateur, rang) DEFERRABLE INITIALLY DEFERRED,		-- Un seul utilisateur par rang
+	UNIQUE(id_competition, id_utilisateur) DEFERRABLE INITIALLY DEFERRED	-- Un seul même utilisateur par compétition
 );
 
 
 ------------------------------------------------------------
--- Table: jugeCompetition
+-- Table: lieu
 ------------------------------------------------------------
--- Table des juges de compétition
--- Un juge est un *utilisateur* juge relié à une *compétition* pour laquelle il a un *type*
+-- Table des lieux de clubs/compétitions
+-- Un lieu a une adresse
 ------------------------------------------------------------
 CREATE TABLE public.lieu(
 	-- Primary keys
@@ -281,7 +283,7 @@ CREATE TABLE public.equipe_personne(
 ------------------------------------------------------------
 CREATE TABLE public.club_personne(
 	-- Primary keys
-	id			INTEGER NOT NULL NEXTVAL('seq_club_personne_id '),
+	id			INTEGER NOT NULL DEFAULT NEXTVAL('seq_club_personne_id '),
 	-- Foreign keys
 	id_club			INTEGER NOT NULL ,
 	id_personne		INTEGER NOT NULL ,

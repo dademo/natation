@@ -17,7 +17,7 @@ allUtilisateurs.append ([
 	'ROLE_CREATE_COMPET'
 ])
 
-for i in range(0,6):
+for i in range(0,25):
 	allUtilisateurs.append([
 		'foo' + str(i+1) + '@bar.com',
 		'ROLE_JUGE'

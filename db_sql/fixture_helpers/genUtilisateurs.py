@@ -18,7 +18,7 @@ allUtilisateurs.append([
 	'azerty'
 ])
 
-for i in range(0,6):
+for i in range(0,25):
 	allUtilisateurs.append([
 		'DEFAULT',
 		'JUGE' + str(i+1),
@@ -32,7 +32,7 @@ req = (
 		'\t' + str(utilisateur[0]) + ',\n' + 
 		'\t(SELECT personne.id FROM personne WHERE personne.nom = \'' + utilisateur[1] + '\' AND personne.prenom = \'' + utilisateur[2] + '\'),\n' + 
 		'\t\'' + utilisateur[3] + '\',\n' + 
-		'\t\'' + utilisateur[4] + '\'\n' + 
+		'\tcrypt(\'' + utilisateur[4] + '\', gen_salt(\'bf\', 8))\n' + 
 		')'
 	for utilisateur in allUtilisateurs
 )

@@ -23,7 +23,7 @@ allPersonnes.append([
 	'15/03/1972'
 ])
 
-for i in range(0,5):
+for i in range(0,20):
 	allPersonnes.append([
 		'DEFAULT',
 		'NAGEUR' + str(i+1),
@@ -31,7 +31,7 @@ for i in range(0,5):
 		'29/07/1998'
 	])
 
-for i in range(0,6):
+for i in range(0,25):
 	allPersonnes.append([
 		'DEFAULT',
 		'JUGE' + str(i+1),

@@ -5,7 +5,7 @@
 
 allEq_jc = []
 
-for i in range(0,5):
+for i in range(1,6):
 	allEq_jc.append([
 		# equipe.nom
 		'TestEquipe',
