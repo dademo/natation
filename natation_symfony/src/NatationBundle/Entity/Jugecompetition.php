@@ -42,7 +42,7 @@ class Jugecompetition
     /**
      * @var \Competition
      *
-     * @ORM\ManyToOne(targetEntity="Competition")
+     * @ORM\ManyToOne(targetEntity="Competition", inversedBy="idJugecompetition")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_competition", referencedColumnName="id")
      * })
@@ -63,6 +63,7 @@ class Jugecompetition
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\ManyToMany(targetEntity="Equipe", mappedBy="idJugecompetition")
+     * @ORM\OrderBy({"ordrepassage" = "ASC"})
      */
     private $idEquipe;
 

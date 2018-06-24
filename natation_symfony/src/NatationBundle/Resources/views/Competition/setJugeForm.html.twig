@@ -1,0 +1,174 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    Mise &agrave; jour des juges pour la comp&eacute;tition {{ competition.titre }}
+{% endblock %}
+
+{% block app_body %}
+    <label id="nJuge"></label><br/>
+    <label id="nJugeArbitre"></label>
+
+    {# FORM #}
+    <form name="form" id="form" method="post">
+
+    <input type="submit" class="btn btn-primary" name="bSubmit" value="Valider" style="margin-bottom: 15px;"/>
+
+    <input type="hidden" name="all_arb" id='all_arb'/>
+
+    <table id="all_juges" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Juge</th>
+                <th>Juge-arbitre</th>
+                <th>Rang</th>
+                <th>Nom</th>
+                <th>Pr&eacute;nom</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for juge in allJugeCompetition %}
+            <tr data-jugeId="{{ juge.id }}">
+                <td>
+                    <input class="form-control juge" type="checkbox" value="{{ allTypeJuge['Juge'] }}"
+                    {% if allCompetJuge[juge.id] is defined %} checked {% endif %} />
+                </td>
+                <td>
+                    <input class="form-control typeJuge" type="checkbox" value="{{ allTypeJuge['Juge-arbitre'] }}"
+                    {% if allCompetJugeArbitres[juge.id] is defined %} checked {% endif %} />
+                    </td>
+                <td><input class="form-control rang" type="number"
+                    {% if allCompetJuge[juge.id] is defined %}
+                        value="{{ allCompetJuge[juge.id] }}" enabled
+                    {% else %}
+                        disabled
+                    {% endif %} min="0" max="5"/></td>
+                <td>{{ juge.idUtilisateur.idPersonne.nom }}</td>
+                <td>{{ juge.idUtilisateur.idPersonne.prenom }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    </form>
+{% endblock %}
+
+{% block userjs %}
+    {{ parent() }}
+
+    <!-- Création d'une datatable -->
+    <script>
+    $(document).ready( function () {
+        // Datatable
+        $('#all_juges').DataTable({
+            language: {
+                url: '{{ asset("datatable_langs/fr.lang.json") }}'
+                //"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json"
+            }
+        });
+
+        $allJugeCbx = [];
+        $allJugeArbCbx = [];
+        $allJugeRangInput = [];
+        $allJugeId = [];
+
+        nJugeCheck = 0;
+        nJugeArbCheck = 0;
+
+        // INIT //
+        $('#all_juges').children('tbody').children().each(function(index, element) {
+            // Touts les status des checkboxes Juge
+            $allJugeCbx.push($(element).find(':nth-child(1)>input'));
+            //$jugeStatus = $(element).find(':nth-child(1)>input').prop('checked');
+            // Touts les status des checkboxes Juge-arbitre
+            $allJugeArbCbx.push($(element).find(':nth-child(2)>input'));
+            //$jugeArbitreStatut = $(element).find(':nth-child(2)>input').prop('checked');
+            // Touts les status des input rang
+            $allJugeRangInput.push($(element).find(':nth-child(3)>input'));
+            //$rang = $(element).find(':nth-child(3)>input');
+            // Info sur la ligne
+            $allJugeId.push($(element).data('jugeid'));
+
+            // Juge
+            if ($($allJugeCbx[index]).prop('checked')) {
+                nJugeCheck++;
+                $allJugeArbCbx[index].prop('disabled', true);
+            }
+
+            // Juge-arbitre
+            if ($($allJugeArbCbx[index]).prop('checked')) {
+                nJugeArbCheck++;
+                $allJugeCbx[index].prop('disabled', true);
+                $allJugeRangInput[index].prop('disabled', true);
+            }
+        });
+
+        $($allJugeCbx).each(function(index, element) {
+            $(element).change(function() {
+                if(this.checked) {
+                    // check
+                    nJugeCheck++;
+                    $allJugeArbCbx[index].prop('disabled', true);
+                } else {
+                    // decheck
+                    nJugeCheck--;
+                    $allJugeArbCbx[index].prop('disabled', false);
+                }
+                $('#nJuge').text(nJugeCheck + ' juges sélectionnés');
+            });
+        });
+
+        $($allJugeArbCbx).each(function(index, element) {
+            $(element).change(function() {
+                if(this.checked) {
+                    nJugeArbCheck++;
+                    $allJugeCbx[index].prop('disabled', true);
+                    $allJugeRangInput[index].prop('disabled', true);
+                } else {
+                    nJugeArbCheck--;
+                    $allJugeCbx[index].prop('disabled', false);
+                    $allJugeRangInput[index].prop('disabled', false);
+                }
+                $('#nJugeArbitre').text(nJugeArbCheck + ' juges-arbitres sélectionnés');
+            });
+        });
+
+        $('#form').submit(function(event) {
+            //event.preventDefault();
+            // Compilation des résultats
+            res = [];
+
+            $($allJugeCbx).each(function(index, element) {
+                if(element.checked) {
+                    res.append({
+                        typeJuge: 'Juge',
+                        rangJuge: allJugeRangInput[index].val(),
+                        idJuge: allJugeId[index]
+                    });
+                }
+            });
+
+            $($allJugeArbCbx).each(function(index, element) {
+                if(element.checked) {
+                    res.append({
+                        typeJuge: 'Juge-arbitre',
+                        rangJuge: -1,
+                        idJuge: allJugeId[index]
+                    });
+                }
+            });
+
+            $('#all_arb').val(res);
+
+            return true;
+        });
+
+        
+        $('#nJuge').text(nJugeCheck + ' juges sélectionnés');
+        $('#nJugeArbitre').text(nJugeArbCheck + ' juges-arbitres sélectionnés');
+        //find("[data-slide='${current}']")
+
+        
+    } );
+    </script>
+
+{% endblock %}

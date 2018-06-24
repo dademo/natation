@@ -1,11 +1,20 @@
-{% extends 'base.html.twig' %}
+{% extends '@Natation/base.html.twig' %}
 
-{% block body %}
+{% block title %}
+    Natation synchronisée
+{% endblock %}
+
+{% block app_body_title %}
+    Connexion
+{% endblock %}
+
+{% block app_body %}
+
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Login</div>
+            <div class="panel panel-default" style="background-color: #ffffffdd;">
+                <!---<div class="panel-heading">Connexion</div>-->
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ path('security_login_check') }}">
                         {% if error %}

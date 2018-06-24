@@ -1,3 +1,7 @@
 login: connexion
 logout: déconnexion
 folder: répertoire
+edit: éditer
+delete: supprimer
+new: nouveau
+update: mettre à jour

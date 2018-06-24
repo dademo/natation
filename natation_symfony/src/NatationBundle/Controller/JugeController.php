@@ -9,23 +9,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
-class DefaultController extends Controller
+class JugeController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
-     * @Security("has_role('ROLE_USER')")
+     * @Route("/juge/compet", name="juge_compet")
+     * @Security("has_role('ROLE_JUGE')")
      */
-    public function indexAction()
+    public function jugeCompetAction()
     {
         return $this->render('@Natation/index.html.twig');
-    }
-
-    /**
-     * @Route("/test/{testVal}", name="test", requirements={"testVal"="\d+"})
-     * @Method({"GET","POST"})
-     */
-    public function testAction($testVal = 10)
-    {
-        return new Response('Hello test _' . $testVal . '_ !');
     }
 }

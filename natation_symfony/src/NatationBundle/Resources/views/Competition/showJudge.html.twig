@@ -1,0 +1,47 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block title %}
+    Natation synchronisée - Compétition
+{% endblock %}
+
+{% block app_body_title %}
+    Tous les juges de la comp&eacute;tition "{{ competition.titre }}"
+{% endblock %}
+
+{% block app_body %}
+    {% if alerts|length > 0 %}
+        <div class="alert alert-warning" role="alert">
+            {% for alert in alerts %}
+                <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{ alert }} <br/>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-success" role="alert">
+            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Aucun probl&egrave;me &agrave; signaler. La comp&eacute;tition peut commencer.
+        </div>
+    {% endif %}
+    <table class="table table-hover">
+    <thead>
+        <th>Rang</th>
+        <th>Nom</th>
+        <th>Type de juge</th>
+        <th></th>
+    </thead>
+    <tbody>
+    {% for jugeCompetition in allJugeCompetition %}
+        <tr>
+            <th>
+            {% if jugeCompetition.rang >= 0 %}
+            {{ jugeCompetition.rang }}
+            {% else %}
+                -
+            {% endif %}
+            </th>
+            <td>{{ jugeCompetition.idUtilisateur.idPersonne.nom }} {{ jugeCompetition.idUtilisateur.idPersonne.prenom }}</td>
+            <td>{{ jugeCompetition.idTypejuge.nom }}</td>
+            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a> <a href="#" title="Supprimer"><i class="fa fa-fw fa-times"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

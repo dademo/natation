@@ -8,23 +8,26 @@
 {# Stylesheets #}
 {% block stylesheets %}
 <!-- Bootstrap core CSS -->
-<link href={{ asset('css/bootstrap.min.css') }} rel="stylesheet">
+<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
 
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<link href={{ asset('css/ie10-viewport-bug-workaround.css') }} rel="stylesheet">
+<link href="{{ asset('css/ie10-viewport-bug-workaround.css') }}" rel="stylesheet">
 
 <!-- FontAwesome style sheet -->
-<link href={{ asset('css/fontawesome-all.min.css') }} rel="stylesheet">
+<link href="{{ asset('css/fontawesome-all.min.css') }}" rel="stylesheet">
 
 <!-- Custom styles for this template -->
-<link href={{ asset('css/sticky-footer-navbar.css') }} rel="stylesheet">
+<link href="{{ asset('css/sticky-footer-navbar.css') }}" rel="stylesheet">
+
+<!-- Datatable CSS -->
+<link href="{{ asset('css/datatables.min.css') }}" rel="stylesheet">
 
 <!-- Custom style sheet -->
-<link href={{ asset('css/custom.css') }} rel="stylesheet">
+<link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
 <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
 <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-<script src={{ asset('js/ie-emulation-modes-warning.js') }}></script>
+<script src="{{ asset('js/ie-emulation-modes-warning.js') }}"></script>
 {% endblock %}
 
 
@@ -33,15 +36,18 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src={{ asset('js/jquery.js') }}></script>
+<script src="{{ asset('js/jquery.js') }}"></script>
 <!--<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>-->
-<script src={{ asset('js/bootstrap.min.js') }}></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src={{ asset('js/ie10-viewport-bug-workaround.js') }}></script>
+<script src="{{ asset('js/ie10-viewport-bug-workaround.js') }}"></script>
+<!-- Datatables -->
+<script src="{{ asset('js/datatables.min.js') }}"></script>
 {% endblock %}
 
-
-
+{% block userjs %}
+    {{ parent() }}
+{% endblock %}
 
 
 {% block body %}
@@ -72,21 +78,25 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ path('homepage') }}">Accueil</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something else here</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li class="dropdown-header">Nav header</li>
-                        <li><a href="#">Separated link</a></li>
-                        <li><a href="#">One more separated link</a></li>
-                    </ul>
-                </li>
+                <li class="
+                {% if '/' == app.request.pathinfo %}
+                active
+                {% endif %}
+                "><a href="{{ path('homepage') }}">Accueil</a></li>
+                {% if is_granted("ROLE_CREATE_COMPET") or is_granted("ROLE_JUGE") %}
+                <li class="
+                {% if '/compet/' in app.request.pathinfo %}
+                active
+                {% endif %}
+                "><a href="{{ path('all_competitions') }}">Toutes les comp&eacute;titions</a></li>
+                {% endif %}
+                {% if is_granted("ROLE_ADMIN") %}
+                <li class="
+                {% if '/user/' in app.request.pathinfo and '/user/show' != app.request.pathinfo and not (app.request.pathinfo matches '#^/user/update/\\w+$#') %}
+                active
+                {% endif %}
+                "><a href="{{ path('all_users') }}">Tous les utilisateurs</a></li>
+                {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if is_granted("ROLE_USER") %}
@@ -97,12 +107,12 @@
                     <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ path('show_user') }}"><i class="fa fa-fw fa-edit"></i> Voir le profil</a></li>
+                        <li><a href="{{ path('show_curr_user') }}"><i class="fa fa-fw fa-edit"></i> Voir le profil</a></li>
                         <li><a href="{{ path('logout') }}"><i class="fa fa-fw fa-sign-out-alt"></i> Déconnexion</a></li>
                     </ul>
                 </li>
                 {% else %}
-                <li><a href="{{ path('login') }}"><i class="fa fa-fw fa-lg fa-user-circle"></i> Connexion</li>
+                <li><a href="{{ path('login') }}"><i class="fa fa-fw fa-lg fa-user-circle"></i> Connexion</a></li>
                 {% endif %}
             </ul>
         </div><!--/.nav-collapse -->

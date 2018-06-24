@@ -6,13 +6,13 @@
 
 {% block app_body %}
 
-<table class="table">
+<table class="table table-hover">
     <thead>
         <tr>
             <th>id</th>
             <th>mail</th>
-            <th>password</th>
             <th>roles</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -20,12 +20,12 @@
         <tr>
             <td>{{ user.id }}</td>
             <td>{{ user.mail }}</td>
-            <td>{{ user.password }}</td>
             <td>
                 {% for role in user.roles %}
                     {{ role }},
                 {% endfor %}
             </td>
+            <td><a href="{{ path('show_user', {userId: user.id}) }}"><i class="fa fa-fw fa-edit"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

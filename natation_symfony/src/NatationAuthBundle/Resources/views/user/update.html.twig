@@ -1,0 +1,12 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    {{ form_title }}
+{% endblock %}
+
+{% block app_body %}
+    {# FORM #}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}
