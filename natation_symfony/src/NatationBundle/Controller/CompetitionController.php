@@ -14,6 +14,7 @@ use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
 use NatationBundle\Entity\Utilisateur;
+use NatationBundle\Entity\Equipe;
 
 
 class CompetitionController extends Controller
@@ -45,14 +46,17 @@ class CompetitionController extends Controller
 
         return $this->render('@Natation/Competition/show.html.twig', array(
             'competition' => $competition,
+            'returnPageUrl' => $this->generateUrl(
+                'all_competitions'
+            ),
         ));
     }
 
     /**
-     * @Route("/compet/show/{competId}/judgeList", name="show_competition_juges", requirements={"competId"="\d+"})
-     * @Security("has_role('ROLE_CREATE_COMPET')")
+     * @Route("/compet/show/{competId}/list_judges", name="show_competition_juges", requirements={"competId"="\d+"})
+     * @Security("has_role('ROLE_USER')")
      */
-    public function showJudgeCompetitionAction(int $competId)
+    public function showJugecompetitionAction(int $competId)
     {
         $competition = $this->getDoctrine()
             ->getRepository(Competition::class)
@@ -91,10 +95,6 @@ class CompetitionController extends Controller
             $oldRang = $juge->getRang();
         }
 
-        // Tests
-        //++$nJuge;
-        //++$nJugeArbitre;
-
         if($nJugeArbitre == 0) {
             $alerts[] = 'Il n\'y a pas de juge-arbitre pour cette compétition (' . $nJugeArbitre . ').  Elle ne pourra pas démarrer';
         }
@@ -114,12 +114,48 @@ class CompetitionController extends Controller
         return $this->render('@Natation/Competition/showJudge.html.twig', array(
             'competition' => $competition,
             'allJugeCompetition' => $allJugecompetition,
-            'alerts' => $alerts
+            'alerts' => $alerts,
+            'returnPageUrl' => $this->generateUrl(
+                'show_competition',
+                array(
+                    'competId' => $competId,
+                )
+            ),
+        ));
+    }
+
+
+    /**
+     * @Route("/compet/show/{competId}/list_teams", name="show_competition_teams", requirements={"competId"="\d+"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showEquipeCompetitionAction(int $competId)
+    {
+        $competition = $this->getDoctrine()
+            ->getRepository(Competition::class)
+            ->find($competId);
+
+        // https://www.doctrine-project.org/api/orm/latest/Doctrine/ORM/EntityRepository.html#method_findBy
+        $allEquipes = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->findAll();
+
+
+        return $this->render('@Natation/Competition/showJudge.html.twig', array(
+            'competition' => $competition,
+            'allEquipes' => $allJugecompetition,
+            'alerts' => $alerts,
+            'returnPageUrl' => $this->generateUrl(
+                'show_competition',
+                array(
+                    'competId' => $competId,
+                )
+            ),
         ));
     }
 
     /**
-     * @Route("/compet/set/{competId}/judgeList", name="set_competition_juges", requirements={"competId"="\d+"})
+     * @Route("/compet/set/{competId}/list_judges", name="set_competition_juges", requirements={"competId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
      */
     public function setJugecompetitionAction(Request $request, int $competId)
@@ -130,62 +166,71 @@ class CompetitionController extends Controller
             ->find($competId);
 
         if ($request->isMethod('POST')) {
-
-            $juges = \json_decode($_POST["all_arbitres"], true);
-            $allJuges = [];
-
-            foreach($juges as $juge) {
-                // Obtention du juge s'il existe
-                $newJuge = $this->getDoctrine()
-                    ->getRepository(Jugecompetition::class)
-                    ->findOneBy(array(
-                        'idCompetition' => $competition,
-                        'rang' => $juge['rangJuge']
-                    ));
-                if($newJuge === NULL) {
-                    $newJuge = new JugeCompetition();
-                    $newJuge->setRang($juge['rangJuge']);
-                    $newJuge->setIdCompetition($competition);
-                }
-                $newJuge->setIdTypejuge(
-                    $this->getDoctrine()
-                    ->getRepository(Typejuge::class)
-                    ->findOneBy(array(
-                        'nom' => $juge['typejuge']
-                    ))
-                );
-                $newJuge->setIdUtilisateur(
-                    $this->getDoctrine()
-                    ->getRepository(Utilisateur::class)
-                    ->find($juge['idUtilisateur'])
-                );
-                $allJuges[] = $newJuge;
-            }
-
-            $competition->setIdJugecompetition($allJuges);
-
             try {
+                $juges = \json_decode($_POST["all_arbitres"], true);
+                if($juges !== null) {
+                    $allJuges = [];
+
+                    foreach($juges as $juge) {
+                        // Obtention du juge s'il existe
+                        $newJuge = $this->getDoctrine()
+                            ->getRepository(Jugecompetition::class)
+                            ->findOneBy(array(
+                                'idCompetition' => $competition,
+                                'rang' => $juge['rangJuge']
+                            ));
+                        if($newJuge === NULL) {
+                            $newJuge = new JugeCompetition();
+                            $newJuge->setRang($juge['rangJuge']);
+                            $newJuge->setIdCompetition($competition);
+                        }
+                        $newJuge->setIdTypejuge(
+                            $this->getDoctrine()
+                            ->getRepository(Typejuge::class)
+                            ->findOneBy(array(
+                                'nom' => $juge['typejuge']
+                            ))
+                        );
+                        $newJuge->setIdUtilisateur(
+                            $this->getDoctrine()
+                            ->getRepository(Utilisateur::class)
+                            ->find($juge['idUtilisateur'])
+                        );
+                        $allJuges[] = $newJuge;
+                    }
+
+                    $competition->setIdJugecompetition($allJuges);
+
+                    try {
+                        
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $entityManager->getConnection()->beginTransaction();
+                        $entityManager->getConnection()->setAutoCommit(false);
+                        // Ajout des nouveaux juges
+                        $entityManager->persist($competition);
+                        $entityManager->flush();
+                        $entityManager->getConnection()->commit();
                 
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->getConnection()->beginTransaction();
-                $entityManager->getConnection()->setAutoCommit(false);
-                // Ajout des nouveaux juges
-                $entityManager->persist($competition);
-                $entityManager->flush();
-                $entityManager->getConnection()->commit();
-        
-                return $this->redirectToRoute('show_competition_juges', array(
-                    'competId' => $competId
-                ));
-            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $ex) {
-                $alerts[] = 'Une valeur est dupliquée ('  .$ex->getMessage() . ')';
-                $this->getDoctrine()->getManager()->getConnection()->rollBack();
-            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
-                $this->getDoctrine()->getManager()->getConnection()->rollBack();
-            } catch (\PDOException $ex) {
-                $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
-                $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                        return $this->redirectToRoute('show_competition_juges', array(
+                            'competId' => $competId
+                        ));
+                    } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $ex) {
+                        $alerts[] = 'Une valeur est dupliquée ('  .$ex->getMessage() . ')';
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                        $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    } catch (\PDOException $ex) {
+                        $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    }
+                } else {
+                    $alerts[] = 'Erreur lors de la lecture du formulaire';
+                }
+            } catch (\Exception $ex) {
+                $alerts[] = 'Erreur lors de la lecture du formulaire';
+            } catch (\Error $ex) {
+                $alerts[] = 'Erreur lors de la lecture du formulaire';
             }
         }
 
@@ -254,6 +299,12 @@ class CompetitionController extends Controller
             'allCompetJuge' => $allCompetJuges,
             'allCompetJugeArbitres' => $allCompetJugeArbitres,
             'alerts' => $alerts,
+            'returnPageUrl' => $this->generateUrl(
+                'show_competition_juges',
+                array(
+                    'competId' => $competId,
+                )
+            ),
         ));
     }
 

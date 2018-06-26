@@ -34,6 +34,7 @@ DROP SEQUENCE IF EXISTS seq_lieu_id;
 DROP SEQUENCE IF EXISTS seq_typeJuge_id;
 DROP SEQUENCE IF EXISTS seq_typeUtilisateur_id;
 DROP SEQUENCE IF EXISTS seq_club_personne_id;
+DROP SEQUENCE IF EXISTS seq_equipe_jugeCompetition_id;
 -- 2. Adding the sequences
 CREATE SEQUENCE IF NOT EXISTS seq_competition_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_personne_id INCREMENT BY 1 START WITH 1;
@@ -45,6 +46,7 @@ CREATE SEQUENCE IF NOT EXISTS seq_lieu_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeJuge_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_typeUtilisateur_id INCREMENT BY 1 START WITH 1;
 CREATE SEQUENCE IF NOT EXISTS seq_club_personne_id INCREMENT BY 1 START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS seq_equipe_jugeCompetition_id INCREMENT BY 1 START WITH 1;
 
 
 
@@ -245,13 +247,16 @@ VALUES
 -- 1,n		-> 	4,n (min 3 arbitres et 1 juge-arbitre; dans notre cas, on aura 5*3 => 15 arbitres et 1 juge-arbitre)
 ------------------------------------------------------------
 CREATE TABLE public.equipe_jugeCompetition(
+	-- Primary keys
+	id			INT NOT NULL DEFAULT NEXTVAL('seq_equipe_jugeCompetition_id'),
 	-- Foreign keys
 	id_equipe		INT  NOT NULL ,
 	id_jugeCompetition	INT  NOT NULL ,
 	-- Data
 	note			INT DEFAULT 0,
 	-- Constraints
-	CONSTRAINT prk_equipe_jugeCompetition PRIMARY KEY (id_equipe,id_jugeCompetition)
+	CONSTRAINT prk_equipe_jugeCompetition_id PRIMARY KEY (id),
+	UNIQUE(id_equipe, id_jugeCompetition)	-- Une seule note par juge et par équipe
 );
 
 

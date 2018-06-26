@@ -70,17 +70,9 @@ class Equipe
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Jugecompetition", inversedBy="idEquipe")
-     * @ORM\JoinTable(name="equipe_jugecompetition",
-     *   joinColumns={
-     *     @ORM\JoinColumn(name="id_equipe", referencedColumnName="id")
-     *   },
-     *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="id_jugecompetition", referencedColumnName="id")
-     *   }
-     * )
+     * @ORM\OneToOne(targetEntity="Note", mappedBy="idEquipe")
      */
-    private $idJugecompetition;
+    private $idNote;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -262,39 +254,39 @@ class Equipe
     }
 
     /**
-     * Add idJugecompetition.
+     * Add idNote.
      *
-     * @param \NatationBundle\Entity\Jugecompetition $idJugecompetition
+     * @param \NatationBundle\Entity\Note $idNote
      *
      * @return Equipe
      */
-    public function addIdJugecompetition(\NatationBundle\Entity\Jugecompetition $idJugecompetition)
+    public function addIdNote(\NatationBundle\Entity\Jugecompetition $idNote)
     {
-        $this->idJugecompetition[] = $idJugecompetition;
+        $this->idNote[] = $idNote;
 
         return $this;
     }
 
     /**
-     * Remove idJugecompetition.
+     * Remove idNote.
      *
-     * @param \NatationBundle\Entity\Jugecompetition $idJugecompetition
+     * @param \NatationBundle\Entity\Note $idNote
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removeIdJugecompetition(\NatationBundle\Entity\Jugecompetition $idJugecompetition)
+    public function removeIdNote(\NatationBundle\Entity\Note $idNote)
     {
-        return $this->idJugecompetition->removeElement($idJugecompetition);
+        return $this->idNote->removeElement($idNote);
     }
 
     /**
-     * Get idJugecompetition.
+     * Get idNote.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getIdJugecompetition()
+    public function getIdNote()
     {
-        return $this->idJugecompetition;
+        return $this->idNote;
     }
 
     /**

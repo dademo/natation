@@ -64,17 +64,16 @@ class Jugecompetition
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="Equipe", mappedBy="idJugecompetition")
-     * @ORM\OrderBy({"ordrepassage" = "ASC"})
+     * @ORM\OneToMany(targetEntity="Note", mappedBy="idJugecompetition")
      */
-    private $idEquipe;
+    private $idNote;
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->idEquipe = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->idNote = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -185,38 +184,38 @@ class Jugecompetition
     }
 
     /**
-     * Add idEquipe.
+     * Add idNote.
      *
-     * @param \NatationBundle\Entity\Equipe $idEquipe
+     * @param \NatationBundle\Entity\Note $idNote
      *
      * @return Jugecompetition
      */
-    public function addIdEquipe(\NatationBundle\Entity\Equipe $idEquipe)
+    public function addIdNote(\NatationBundle\Entity\Note $idNote)
     {
-        $this->idEquipe[] = $idEquipe;
+        $this->idNote[] = $idNote;
 
         return $this;
     }
 
     /**
-     * Remove idEquipe.
+     * Remove idNote.
      *
-     * @param \NatationBundle\Entity\Equipe $idEquipe
+     * @param \NatationBundle\Entity\Note $idNote
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removeIdEquipe(\NatationBundle\Entity\Equipe $idEquipe)
+    public function removeIdNote(\NatationBundle\Entity\Note $idNote)
     {
-        return $this->idEquipe->removeElement($idEquipe);
+        return $this->idNote->removeElement($idNote);
     }
 
     /**
-     * Get idEquipe.
+     * Get idNote.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getIdEquipe()
+    public function getIdNote()
     {
-        return $this->idEquipe;
+        return $this->idNote;
     }
 }

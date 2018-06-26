@@ -180,3 +180,12 @@ table .bold_elems {
 .fa-times {
   color: red;
 }
+
+h1 a {
+  color: #444;
+  transition: color 0.5s;
+}
+
+h1 a:hover{
+  color: #666;
+}
