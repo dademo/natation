@@ -235,15 +235,15 @@ class CompetitionController extends Controller
         }
 
         // https://www.doctrine-project.org/api/orm/latest/Doctrine/ORM/EntityRepository.html#method_findBy
-            $rawSql = "SELECT
-                utilisateur.id
-            FROM utilisateur
-            INNER JOIN utilisateur_typeUtilisateur
-                ON utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id
-            INNER JOIN typeUtilisateur
-                ON typeUtilisateur.id = utilisateur_typeUtilisateur.id_typeUtilisateur
-            WHERE typeUtilisateur.nom = 'ROLE_JUGE'
-            ";
+        $rawSql = "SELECT
+            utilisateur.id
+        FROM utilisateur
+        INNER JOIN utilisateur_typeUtilisateur
+            ON utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id
+        INNER JOIN typeUtilisateur
+            ON typeUtilisateur.id = utilisateur_typeUtilisateur.id_typeUtilisateur
+        WHERE typeUtilisateur.nom = 'ROLE_JUGE'
+        ";
 
         $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
         $stmt->execute([]);

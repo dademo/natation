@@ -1,0 +1,34 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block title %}
+    Natation synchronisée - Compétition
+{% endblock %}
+
+{% block app_body_title %}
+    Club "{{ club.nom }}"
+{% endblock %}
+
+{% block app_body %}
+    <table class="table table-hover">
+        <tr>
+            <th>Nom du club :</th>
+            <td>{{ club.nom }}</td>
+            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>Dirigent du club</th>
+            <td>{{ club.idDirigent.nom }} {{ club.idDirigent.prenom }}</td>
+            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>Nombre d'adh&eacute;rents :</th>
+            <td>{{ nAdherents }}</td>
+            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+        <tr>
+            <th>Emplacement du club :</th>
+            <td>{{ club.idLieu.adresse }}</td>
+            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+        </tr>
+    </table>
+{% endblock %}

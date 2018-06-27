@@ -39,7 +39,7 @@ class ClubPersonne
     /**
      * @var \Club
      *
-     * @ORM\ManyToOne(targetEntity="Club")
+     * @ORM\ManyToOne(targetEntity="Club", inversedBy="idClubPersonne")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_club", referencedColumnName="id")
      * })

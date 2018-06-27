@@ -1,0 +1,67 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block title %}
+    Natation synchronisée - Compétition
+{% endblock %}
+
+{% block app_body_title %}
+    Toutes les comp&eacute;titions
+{% endblock %}
+
+{% block app_body %}
+    <table class="table table-hover" id="all_compet">
+        <thead>
+            <tr>
+                <th>Nom du club</th>
+                <th>Dirigent</th>
+                <th>Nombre d'adh&eacute;rents</th>
+                <th>Emplacement du club</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for club in allClubs %}
+            <tr data-link="{{ path('show_club', {clubId: club.id}) }}">
+                <td><a href="{{ path('show_club', {clubId: club.id}) }}"  title="Voir le club">{{ club.nom }}</a></td>
+                <td>{{ club.idDirigent.nom }} {{ club.idDirigent.prenom }}</td>
+                <td>
+                {% if nAdherents[club.id] is defined %}
+                    {{ nAdherents[club.id] }}
+                {% else %}
+                    0
+                {% endif %}
+                </td>
+                <td>{{ club.idLieu.adresse }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_granted('ROLE_CREATE_COMPET') %}
+    <a href="{{ path('new_club') }}">
+        <button class="btn btn-primary">{{ "Create a new club"|trans }}</button>
+    </a>
+    {% endif %}
+{% endblock %}
+
+{% block userjs %}
+    {{ parent() }}
+    <!-- Sélection au clic sur la ligne -->
+    <script>
+        $('table.table tr').click(function(){
+            window.location.href = $(this).data('link');
+        });
+    </script>
+
+    <!-- Création d'une datatable -->
+    <script>
+    $(document).ready( function () {
+        $('#all_compet').DataTable({
+            language: {
+                url: '{{ asset("datatable_langs/fr.lang.json") }}'
+            }
+        });
+        
+    } );
+    </script>
+
+{% endblock %}

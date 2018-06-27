@@ -40,14 +40,21 @@ class Club
     private $idLieu;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idClub")
+     */
+    private $idClubPersonne;
+
+    /**
      * @var \Personne
      *
-     * @ORM\ManyToOne(targetEntity="Personne")
+     * @ORM\OneToOne(targetEntity="Personne")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_personne", referencedColumnName="id")
      * })
      */
-    private $idPersonne;
+    private $idDirigent;
 
 
 
@@ -110,26 +117,50 @@ class Club
     }
 
     /**
-     * Set idPersonne.
+     * Set idClubPersonne.
      *
-     * @param \NatationBundle\Entity\Personne|null $idPersonne
+     * @param \NatationBundle\Entity\ClubPersonne|null $idClubPersonne
      *
      * @return Club
      */
-    public function setIdPersonne(\NatationBundle\Entity\Personne $idPersonne = null)
+    public function setIdClubPersonne(\NatationBundle\Entity\ClubPersonne $idClubPersonne = null)
     {
-        $this->idPersonne = $idPersonne;
+        $this->idPersonne = $idClubPersonne;
 
         return $this;
     }
 
     /**
-     * Get idPersonne.
+     * Get idClubPersonne.
+     *
+     * @return \NatationBundle\Entity\ClubPersonne|null
+     */
+    public function getIdClubPersonne()
+    {
+        return $this->idClubPersonne;
+    }
+
+    /**
+     * Set idDirigent.
+     *
+     * @param \NatationBundle\Entity\Personne|null $idDirigent
+     *
+     * @return Club
+     */
+    public function setIdDirigent(\NatationBundle\Entity\Personne $idDirigent = null)
+    {
+        $this->idDirigent = $idDirigent;
+
+        return $this;
+    }
+
+    /**
+     * Get idDirigent.
      *
      * @return \NatationBundle\Entity\Personne|null
      */
-    public function getIdPersonne()
+    public function getIdDirigent()
     {
-        return $this->idPersonne;
+        return $this->idDirigent;
     }
 }
