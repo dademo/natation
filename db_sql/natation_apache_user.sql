@@ -36,9 +36,9 @@ GRANT EXECUTE ON FUNCTION public.getjugescompetition(idcompetition integer) TO a
 
 GRANT EXECUTE ON FUNCTION public.getjugesequipe(idequipe integer) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.hmac(text, text, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.hmac(bytea, bytea, text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.hmac(text, text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.login(adressemail character varying, motdepasse character varying) TO apache;
 
@@ -48,39 +48,39 @@ GRANT EXECUTE ON FUNCTION public.pgp_key_id(bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt(text, bytea) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt(text, bytea, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt(bytea, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt(bytea, text, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text, text) TO apache;
-
 GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text) TO apache;
+GRANT EXECUTE ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text, text) TO apache;
 
-GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text, text) TO apache;
+GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt(text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text) TO apache;
+
+GRANT EXECUTE ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text, text) TO apache;
 
 GRANT EXECUTE ON FUNCTION public.nothing() TO apache;
 
@@ -89,8 +89,6 @@ GRANT EXECUTE ON FUNCTION public.read_only() TO apache;
 GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_afterinsertupdate_estnee() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_afterinsertupdate_inscription() TO apache;
-
-GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_beforeinsertupdate_inscription() TO apache;
 
 GRANT EXECUTE ON FUNCTION public.trig_fct_club_personne_beforeupdate_acompetition_datedebut() TO apache;
 
@@ -126,6 +124,8 @@ GRANT ALL ON SEQUENCE public.seq_competition_id TO apache;
 
 GRANT ALL ON SEQUENCE public.seq_equipe_id TO apache;
 
+GRANT ALL ON SEQUENCE public.seq_equipe_jugecompetition_id TO apache;
+
 GRANT ALL ON SEQUENCE public.seq_jugecompetition_id TO apache;
 
 GRANT ALL ON SEQUENCE public.seq_lieu_id TO apache;
@@ -138,13 +138,9 @@ GRANT ALL ON SEQUENCE public.seq_typeutilisateur_id TO apache;
 
 GRANT ALL ON SEQUENCE public.seq_utilisateur_id TO apache;
 
-GRANT ALL ON TABLE public.all_res_club TO apache;
-
 GRANT ALL ON TABLE public.club TO apache;
 
 GRANT ALL ON TABLE public.club_personne TO apache;
-
-GRANT ALL ON TABLE public.compet_id TO apache;
 
 GRANT ALL ON TABLE public.competition TO apache;
 

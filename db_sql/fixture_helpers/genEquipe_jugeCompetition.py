@@ -17,6 +17,7 @@ for i in range(1,6):
 
 req = (
 		'(\n' + 
+		'DEFAULT,\n' + 
 		'\t(SELECT equipe.id FROM equipe WHERE equipe.nom = \'' + eq_jc[0] + '\'),\n' + 
 		'\t(SELECT jugeCompetition.id FROM jugeCompetition INNER JOIN utilisateur ON utilisateur.id = jugeCompetition.id_utilisateur WHERE utilisateur.mail = \'' + eq_jc[1] + '\'),\n' + 
 		'\t' + str(eq_jc[2]) + '\n' + 
