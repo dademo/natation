@@ -13,12 +13,12 @@
         <tr>
             <th>Nom du club :</th>
             <td>{{ club.nom }}</td>
-            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            <td><a href="{{ path('set_club_nom', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
         </tr>
         <tr>
             <th>Dirigent du club</th>
             <td>{{ club.idDirigent.nom }} {{ club.idDirigent.prenom }}</td>
-            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            <td><a href="{{ path('set_club_dirigent', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
         </tr>
         <tr>
             <th>Nombre d'adh&eacute;rents :</th>
@@ -28,7 +28,7 @@
         <tr>
             <th>Emplacement du club :</th>
             <td>{{ club.idLieu.adresse }}</td>
-            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            <td><a href="{{ path('set_club_lieu', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
         </tr>
     </table>
 {% endblock %}

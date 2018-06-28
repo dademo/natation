@@ -18,6 +18,10 @@ use NatationBundle\Entity\Equipe;
 use NatationBundle\Entity\Club;
 use NatationBundle\Entity\Personne;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+
 
 class ClubController extends Controller
 {
@@ -69,7 +73,10 @@ class ClubController extends Controller
         ->findAll();
 
         return $this->render('@Natation/Club/showAll.html.twig', array(
-            'allClubs' => $allClubs
+            'allClubs' => $allClubs,
+            'returnPageUrl' => $this->generateUrl(
+                'all_clubs'
+            ),
         ));
     }
 
@@ -105,6 +112,132 @@ class ClubController extends Controller
         return $this->render('@Natation/Club/show.html.twig', array(
             'club' => $club,
             'nAdherents' => $nAdherents,
+            'returnPageUrl' => $this->generateUrl(
+                'all_clubs'
+            ),
+        ));
+    }
+    
+    /**
+     * @Route("/club/set/{clubId}/nom", name="set_club_nom", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function setClubNomAction(Request $request, $clubId)
+    {
+        $club = $this->getDoctrine()
+        ->getRepository(Club::class)
+        ->find($clubId);
+
+        $form = $this->createFormBuilder($club)
+            ->add('nom', TextType::class, array('label' => 'New club name'))
+            ->add('save', SubmitType::class)
+            ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
+        
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+    
+                return $this->redirectToRoute('show_club', array(
+                    'clubId' => $club->getId()
+                ));
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException  $ex) {
+                $form->addError(new FormError('Ce club existe déjà'));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+        return $this->render('@Natation/Club/update.html.twig', array(
+            'form_title' => 'Modification du nom du club ' . $club->getNom(),
+            'form' => $form->createView(),
+        ));
+    }
+    
+    
+    /**
+     * @Route("/club/set/{clubId}/dirigent", name="set_club_dirigent", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function setClubDirigentAction(Request $request, $clubId)
+    {
+        $club = $this->getDoctrine()
+        ->getRepository(Club::class)
+        ->find($clubId);
+
+        $form = $this->createFormBuilder($club)
+            ->add('idDirigent', EntityType::class, array('label' => 'Nouveau dirigent du club', 'class' => 'NatationBundle:Personne'))
+            ->add('save', SubmitType::class)
+            ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
+        
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+    
+                return $this->redirectToRoute('show_club', array(
+                    'clubId' => $club->getId()
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+        return $this->render('@Natation/Club/update.html.twig', array(
+            'form_title' => 'Modification du dirigent du club ' . $club->getNom(),
+            'form' => $form->createView(),
+        ));
+    }
+    
+    /**
+     * @Route("/club/set/{clubId}/lieu", name="set_club_lieu", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function setClubLieuAction(Request $request, $clubId)
+    {
+        $club = $this->getDoctrine()
+        ->getRepository(Club::class)
+        ->find($clubId);
+
+        $form = $this->createFormBuilder($club)
+            ->add('idLieu', EntityType::class, array('label' => 'Nouvel emplacement pour le club', 'class' => 'NatationBundle:Lieu'))
+            ->add('save', SubmitType::class)
+            ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
+        
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+    
+                return $this->redirectToRoute('show_club', array(
+                    'clubId' => $club->getId()
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+        return $this->render('@Natation/Club/update.html.twig', array(
+            'form_title' => 'Modification de l\'emplacement du club' . $club->getNom(),
+            'form' => $form->createView(),
         ));
     }
 }
