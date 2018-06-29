@@ -1,0 +1,26 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    Adh&eacute;rents du club
+{% endblock %}
+
+{% block app_body %}
+    <table class="table table-hover" id="all_compet">
+        <thead>
+            <tr>
+                <th>Nom de la personne</th>
+                <th>Date d'inscription</th>
+                <th>Date de fin d'inscription</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for personne in allPersonnes %}
+            <tr>
+                <td>{{ personne.nom }} {{ personne.prenom }}</td>
+                <td>{{ personne.idClubPersonne.dateInscription }}</td>
+                <td>{% if personne.idClubPersonne.dateFinInscription is defined %} {{ personne.idClubPersonne.dateFinInscription }} {% else %} - {% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

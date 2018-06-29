@@ -13,22 +13,30 @@
         <tr>
             <th>Nom du club :</th>
             <td>{{ club.nom }}</td>
+            {% if is_granted('ROLE_CREATE_COMPET') %}
             <td><a href="{{ path('set_club_nom', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Dirigent du club</th>
             <td>{{ club.idDirigent.nom }} {{ club.idDirigent.prenom }}</td>
+            {% if is_granted('ROLE_CREATE_COMPET') %}
             <td><a href="{{ path('set_club_dirigent', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Nombre d'adh&eacute;rents :</th>
             <td>{{ nAdherents }}</td>
-            <td><a href="#" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% if is_granted('ROLE_CREATE_COMPET') %}
+            <td><a href="{{ path('show_club_membres', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Emplacement du club :</th>
             <td>{{ club.idLieu.adresse }}</td>
+            {% if is_granted('ROLE_CREATE_COMPET') %}
             <td><a href="{{ path('set_club_lieu', {clubId: club.id }) }}" title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a></td>
+            {% endif %}
         </tr>
     </table>
 {% endblock %}

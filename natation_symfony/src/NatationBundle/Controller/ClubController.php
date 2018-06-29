@@ -117,10 +117,61 @@ class ClubController extends Controller
             ),
         ));
     }
+
+    /**
+     * @Route("/club/show/{clubId}/membres", name="show_club_membres", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_CREATE_COMPET')")
+     */
+    public function showClubMembresAction($clubId)
+    {
+        /*$allPersonnes = $this->getDoctrine()
+        ->getRepository(Personne::class)
+        ->findBy(array(
+            'idClubPersonne.dateFinInscription' => array(
+                '>= currentDate'
+            )
+        ));*/
+        
+        
+        $rawSql = "SELECT
+            club_personne.id_personne as idPersonne
+        FROM club
+        INNER JOIN club_personne
+            ON club_personne.id_club = club.id
+        WHERE (club_personne.dateFinInscription IS NULL
+            OR club_personne.dateFinInscription >= current_date)
+            AND club.id = " . $clubId . "
+        ";
+
+        $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
+        $stmt->execute();
+        $_allPersonnes = $stmt->fetchAll();
+        
+        $tmpAllPersonnes = [];
+        
+        foreach($_allPersonnes as $row) {
+            $tmpAllPersonnes[] = $row['idpersonne'];
+        }
+        
+        $allPersonnes = $this->getDoctrine()
+        ->getRepository(Personne::class)
+        ->findBy(array(
+                'id' => $tmpAllPersonnes
+            ));
+
+        return $this->render('@Natation/Club/show_adherents.html.twig', array(
+            'allPersonnes' => $allPersonnes,
+            'returnPageUrl' => $this->generateUrl(
+                'show_club', array(
+                    'clubId' => $clubId
+                )
+            ),
+        ));
+    }
     
     /**
      * @Route("/club/set/{clubId}/nom", name="set_club_nom", requirements={"clubId"="\d+"})
-     * @Security("has_role('ROLE_USER')")
+     * @Security("has_role('ROLE_CREATE_COMPET')")
      */
     public function setClubNomAction(Request $request, $clubId)
     {
@@ -163,7 +214,7 @@ class ClubController extends Controller
     
     /**
      * @Route("/club/set/{clubId}/dirigent", name="set_club_dirigent", requirements={"clubId"="\d+"})
-     * @Security("has_role('ROLE_USER')")
+     * @Security("has_role('ROLE_CREATE_COMPET')")
      */
     public function setClubDirigentAction(Request $request, $clubId)
     {
@@ -203,7 +254,7 @@ class ClubController extends Controller
     
     /**
      * @Route("/club/set/{clubId}/lieu", name="set_club_lieu", requirements={"clubId"="\d+"})
-     * @Security("has_role('ROLE_USER')")
+     * @Security("has_role('ROLE_CREATE_COMPET')")
      */
     public function setClubLieuAction(Request $request, $clubId)
     {
