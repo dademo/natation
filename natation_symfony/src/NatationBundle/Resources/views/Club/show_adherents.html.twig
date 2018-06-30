@@ -17,7 +17,7 @@
             {% for personne in allPersonnes %}
             <tr>
                 <td>{{ personne.nom }} {{ personne.prenom }}</td>
-                <td>{{ personne.idClubPersonne.dateInscription }}</td>
+                <td>{{ personne.currIdClubPersonne.dateInscription|date('d-m-Y') }}</td>
                 <td>{% if personne.idClubPersonne.dateFinInscription is defined %} {{ personne.idClubPersonne.dateFinInscription }} {% else %} - {% endif %}</td>
             </tr>
             {% endfor %}

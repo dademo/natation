@@ -4,6 +4,8 @@ namespace NatationBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Validator\Constraints\DateTime;
+
 /**
  * Personne
  *
@@ -51,11 +53,20 @@ class Personne
     private $idEquipe;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idPersonne")
+     */
+    private $idClubPersonne;
+    
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->idEquipe = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->idClubPersonne = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -185,5 +196,82 @@ class Personne
     public function __toString()
     {
         return $this->nom . ' ' . $this->prenom;
+    }
+
+    /**
+     * Get idClubPersonne.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getIdClubPersonne()
+    {
+        return $this->idClubPersonne;
+    }
+
+    /**
+     * Add idClubPersonne.
+     *
+     * @param \NatationBundle\Entity\ClubPersonne $idClubPersonne
+     *
+     * @return Personne
+     */
+    public function addIdClubPersonne(\NatationBundle\Entity\ClubPersonne $idEquipe)
+    {
+        $this->idClubPersonne[] = $idClubPersonne;
+
+        return $this;
+    }
+
+    /**
+     * Remove idClubPersonne.
+     *
+     * @param \NatationBundle\Entity\ClubPersonne $idClubPersonne
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeIdClubPersonne(\NatationBundle\Entity\ClubPersonne $idClubPersonne)
+    {
+        return $this->idClubPersonne->removeElement($idClubPersonne);
+    }
+
+
+    /**
+     * Get current idClubPersonne.
+     *
+     * @return \NatationBundle\Entity\ClubPersonne The current club_personne relation
+     */
+    public function getCurrIdClubPersonne()
+    {
+        foreach ($this->idClubPersonne as $clubPersonne) {
+            $dateFinInscription = $clubPersonne->getDatefininscription();
+            if($dateFinInscription === null || $this->_sameDay($dateFinInscription, new \DateTime('now'))) {
+                return $clubPersonne;
+            }
+        }
+        var_dump(false);
+
+        return null;
+    }
+
+    /**
+     * Check if the two dates are in the same day
+     * 
+     * @return boolean
+     */
+    private function _sameDay(\DateTime $date1, \DateTime $date2)
+    {
+        if($date1->format('y') != $date2->format('y')) {
+            return false;
+        }
+
+        if($date1->format('m') != $date2->format('m')) {
+            return true;
+        }
+
+        if($date1->format('d') == $date2->format('d')) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
