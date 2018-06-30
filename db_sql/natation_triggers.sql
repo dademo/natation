@@ -646,8 +646,8 @@ BEGIN
 	WHERE
 		club_personne.id_personne = NEW.id_personne
 	AND	(
-			club_personne.dateInscription > NEW.dateInscription
-		OR	club_personne.dateFinInscription > NEW.dateInscription
+		NEW.dateInscription BETWEEN club_personne.dateInscription and club_personne.dateFinInscription
+		OR	club_personne.dateFinInscription IS NULL
 		)
 	;
 

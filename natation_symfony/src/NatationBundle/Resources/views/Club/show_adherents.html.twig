@@ -5,12 +5,14 @@
 {% endblock %}
 
 {% block app_body %}
+<a href="{{ path('add_club_membre', {clubId: clubId}) }}"><button class="btn btn-primary" style="margin-bottom: 10px;">Ajouter une personne</button></a>
     <table class="table table-hover" id="all_compet">
         <thead>
             <tr>
                 <th>Nom de la personne</th>
                 <th>Date d'inscription</th>
                 <th>Date de fin d'inscription</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -18,7 +20,16 @@
             <tr>
                 <td>{{ personne.nom }} {{ personne.prenom }}</td>
                 <td>{{ personne.currIdClubPersonne.dateInscription|date('d-m-Y') }}</td>
-                <td>{% if personne.idClubPersonne.dateFinInscription is defined %} {{ personne.idClubPersonne.dateFinInscription }} {% else %} - {% endif %}</td>
+                <td>
+                {% if personne.currIdClubPersonne.dateFinInscription != null %}
+                {{ personne.currIdClubPersonne.dateFinInscription|date('d-m-Y') }}
+                </td><td>
+                {% else %}
+                 - 
+                </td><td>
+                    <a href="{{ path('set_personne_dateFin', {personneId: personne.id }) }}"><i class="fa fa-fw fa-edit"></i></a>
+                {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

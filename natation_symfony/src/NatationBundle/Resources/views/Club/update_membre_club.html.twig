@@ -1,0 +1,13 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    {{ form_title }}
+{% endblock %}
+
+{% block app_body %}
+    <a href="{{ path('add_personne', {clubId: clubId}) }}"><button class="btn btn-primary" style="margin-bottom: 10px;">Ajouter une personne</button></a>
+    {# FORM #}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}

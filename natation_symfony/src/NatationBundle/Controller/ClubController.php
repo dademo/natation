@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormError;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 use NatationBundle\Entity\Competition;
@@ -24,6 +25,7 @@ use NatationBundle\Entity\Equipe;
 use NatationBundle\Entity\Club;
 use NatationBundle\Entity\Personne;
 use NatationBundle\Entity\Note;
+use NatationBundle\Entity\ClubPersonne;
 
 
 class ClubController extends Controller
@@ -169,6 +171,7 @@ class ClubController extends Controller
 
         return $this->render('@Natation/Club/show_adherents.html.twig', array(
             'allPersonnes' => $allPersonnes,
+            'clubId' => $clubId,
             'returnPageUrl' => $this->generateUrl(
                 'show_club', array(
                     'clubId' => $clubId
@@ -216,6 +219,11 @@ class ClubController extends Controller
         return $this->render('@Natation/Club/update.html.twig', array(
             'form_title' => 'Modification du nom du club ' . $club->getNom(),
             'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl(
+                'show_club_membres', array(
+                    'clubId' => $clubPersonne->getIdClub()->getId()
+                )
+            ),
         ));
     }
     
@@ -257,6 +265,11 @@ class ClubController extends Controller
         return $this->render('@Natation/Club/update.html.twig', array(
             'form_title' => 'Modification du dirigent du club ' . $club->getNom(),
             'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl(
+                'show_club_membres', array(
+                    'clubId' => $clubPersonne->getIdClub()->getId()
+                )
+            ),
         ));
     }
     
@@ -297,16 +310,175 @@ class ClubController extends Controller
         return $this->render('@Natation/Club/update.html.twig', array(
             'form_title' => 'Modification de l\'emplacement du club' . $club->getNom(),
             'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl(
+                'show_club_membres', array(
+                    'clubId' => $clubPersonne->getIdClub()->getId()
+                )
+            ),
+        ));
+    }
+
+    
+    /**
+     * @Route("/personne/set/{personneId}/dateFinInscription", name="set_personne_dateFin", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_CREATE_COMPET')")
+     */
+    public function setPersonneDatefininscription(Request $request, $personneId)
+    {
+        $personne = $this->getDoctrine()
+        ->getRepository(Personne::class)
+        ->find($personneId);
+
+        $clubPersonne = $personne->getCurrIdClubPersonne();
+
+        if(isset($clubPersonne) && $clubPersonne->getDatefininscription() === null) {
+
+            $form = $this->createFormBuilder($clubPersonne)
+            ->add('datefininscription', DateType::class, array('label' => 'Fin d\'inscription de la personne'))
+            ->add('save', SubmitType::class)
+            ->getForm();
+
+
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $clubPersonne = $form->getData();
+            
+                try {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($clubPersonne);
+                    $entityManager->flush();
+        
+                    return $this->redirectToRoute('show_club_membres', array(
+                        'clubId' => $clubPersonne->getIdClub()->getId()
+                    ));
+                } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                    $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+                }
+            }
+
+
+            return $this->render('@Natation/Club/update.html.twig', array(
+                'form_title' => 'Modification de la date de fin d\'inscription pour ' . $personne,
+                'form' => $form->createView(),
+                'returnPageUrl' => $this->generateUrl(
+                    'show_club_membres', array(
+                        'clubId' => $clubPersonne->getIdClub()->getId()
+                    )
+                ),
+            ));
+        } else {
+            return $this->redirectToRoute('all_clubs');
+        }
+
+    }
+
+
+    /**
+     * @Route("/club/add/{clubId}/membre", name="add_club_membre", requirements={"clubId"="\d+"})
+     * @Security("has_role('ROLE_CREATE_COMPET')")
+     */
+    public function addClubMembreAction(Request $request, $clubId)
+    {
+        $club = $this->getDoctrine()
+        ->getRepository(Club::class)
+        ->find($clubId);
+
+        $clubPersonne = new ClubPersonne();
+
+        $clubPersonne->setIdClub($club);
+
+        $form = $this->createFormBuilder($clubPersonne)
+        ->add('idPersonne', EntityType::class, array('label' => 'Person', 'class' => 'NatationBundle:Personne'))
+        ->add('dateinscription', DateType::class, array(
+            'label' => 'Begin of registration',
+            'years' => range(date('Y')-1, date('Y')+10),
+            ))
+        //->add('datefininscription', DateType::class, array('label' => 'End of registration'))
+        ->add('save', SubmitType::class)
+        ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $personne = $form->getData();
+            
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($personne);
+                $entityManager->flush();
+        
+                return $this->redirectToRoute('show_club_membres', array(
+                    'clubId' => $clubId
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                var_dump($ex->getMessage());
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+
+        return $this->render('@Natation/Club/update_membre_club.html.twig', array(
+            'form_title' => 'Ajout d\'une personne au club',
+            'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl(
+                'show_club_membres', array(
+                    'clubId' => $clubId
+                )
+            ),
+            'clubId' => $clubId,
         ));
     }
 
 
     /**
-     * @Route("/club/show/{clubId}", name="show_club_members", requirements={"clubId"="\d+"})
+     * @Route("/personne/add/{clubId}", name="add_personne", requirements={"clubId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
      */
-    public function showClubMembersAction(int $clubId)
+    public function addPersonneAction(Request $request, $clubId)
     {
+        $club = $this->getDoctrine()
+        ->getRepository(Personne::class)
+        ->find($clubId);
+
+        $personne = new Personne();
+
+        $form = $this->createFormBuilder($personne)
+        ->add('nom', TextType::class, array('label' => 'Last name'))
+        ->add('prenom', TextType::class, array('label' => 'First name'))
+        ->add('datenaissance', DateType::class, array('label' => 'End of registration'))
+        ->add('save', SubmitType::class)
+        ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $personne = $form->getData();
+            
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($personne);
+                $entityManager->flush();
         
+                return $this->redirectToRoute('add_club_membre', array(
+                    'clubId' => $clubId
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+
+        return $this->render('@Natation/Club/update.html.twig', array(
+            'form_title' => 'Création d\'une nouvelle personne',
+            'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl(
+                'add_club_membre', array(
+                    'clubId' => $clubId
+                )
+            ),
+        ));
     }
 }
