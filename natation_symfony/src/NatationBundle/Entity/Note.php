@@ -18,16 +18,6 @@ class Note
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="SEQUENCE")
-     * @ORM\SequenceGenerator(sequenceName="seq_equipe_jugeCompetition_id", allocationSize=1, initialValue=1)
-     */
-    private $id;
-
-    /**
-     * @var int
-     *
      * @ORM\Column(name="note", type="integer")
      */
     private $note;
@@ -46,6 +36,8 @@ class Note
     /**
      * @var \Equipe
      *
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\OneToOne(targetEntity="Equipe", inversedBy="idNote")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_equipe", referencedColumnName="id")

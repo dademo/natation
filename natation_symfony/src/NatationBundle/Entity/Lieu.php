@@ -64,4 +64,14 @@ class Lieu
     {
         return $this->adresse;
     }
+
+    /**
+     * __toString function
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->adresse;
+    }
 }

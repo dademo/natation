@@ -176,4 +176,14 @@ class Personne
     {
         return $this->idEquipe;
     }
+
+    /**
+     * __toString function
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->nom . ' ' . $this->prenom;
+    }
 }

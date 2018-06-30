@@ -13,16 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
 class ClubPersonne
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="SEQUENCE")
-     * @ORM\SequenceGenerator(sequenceName="seq_club_personne_id", allocationSize=1, initialValue=1)
-     */
-    private $id;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="dateinscription", type="date", nullable=false)
@@ -39,6 +29,8 @@ class ClubPersonne
     /**
      * @var \Club
      *
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\ManyToOne(targetEntity="Club", inversedBy="idClubPersonne")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_club", referencedColumnName="id")
@@ -49,6 +41,8 @@ class ClubPersonne
     /**
      * @var \Personne
      *
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\ManyToOne(targetEntity="Personne")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_personne", referencedColumnName="id")

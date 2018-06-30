@@ -131,6 +131,7 @@ class CompetitionController extends Controller
      */
     public function showEquipeCompetitionAction(int $competId)
     {
+        /*
         $competition = $this->getDoctrine()
             ->getRepository(Competition::class)
             ->find($competId);
@@ -151,7 +152,8 @@ class CompetitionController extends Controller
                     'competId' => $competId,
                 )
             ),
-        ));
+        ));*/
+        return new Response('OK');
     }
 
     /**
