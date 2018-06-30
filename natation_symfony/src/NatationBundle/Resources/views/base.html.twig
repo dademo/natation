@@ -90,6 +90,13 @@
                 {% endif %}
                 "><a href="{{ path('all_competitions') }}">Toutes les comp&eacute;titions</a></li>
                 {% endif %}
+                {% if is_granted("ROLE_USER") %}
+                <li class="
+                {% if '/club/' in app.request.pathinfo %}
+                active
+                {% endif %}
+                "><a href="{{ path('all_clubs') }}">Tous les clubs</a></li>
+                {% endif %}
                 {% if is_granted("ROLE_ADMIN") %}
                 <li class="
                 {% if '/user/' in app.request.pathinfo and '/user/show' != app.request.pathinfo and not (app.request.pathinfo matches '#^/user/update/\\w+$#') %}
