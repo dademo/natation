@@ -54,7 +54,7 @@ class Jugecompetition
     /**
      * @var \Utilisateur
      *
-     * @ORM\ManyToOne(targetEntity="Utilisateur")
+     * @ORM\ManyToOne(targetEntity="\NatationAuthBundle\Entity\Utilisateur")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")
      * })
@@ -162,11 +162,11 @@ class Jugecompetition
     /**
      * Set idUtilisateur.
      *
-     * @param \NatationBundle\Entity\Utilisateur|null $idUtilisateur
+     * @param \NatationAuthBundle\Entity\Utilisateur|null $idUtilisateur
      *
      * @return Jugecompetition
      */
-    public function setIdUtilisateur(\NatationBundle\Entity\Utilisateur $idUtilisateur = null)
+    public function setIdUtilisateur(\NatationAuthBundle\Entity\Utilisateur $idUtilisateur = null)
     {
         $this->idUtilisateur = $idUtilisateur;
 
@@ -176,7 +176,7 @@ class Jugecompetition
     /**
      * Get idUtilisateur.
      *
-     * @return \NatationBundle\Entity\Utilisateur|null
+     * @return \NatationAuthBundle\Entity\Utilisateur|null
      */
     public function getIdUtilisateur()
     {

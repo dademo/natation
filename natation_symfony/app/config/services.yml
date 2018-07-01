@@ -48,3 +48,9 @@ services:
             - { name: kernel.event_listener, event: console.command }
         #arguments: ['@translator']
         arguments: ['@kernel']
+    
+    app.compet_role_extension:
+        class: NatationBundle\Twig\CompetRoleExtension
+        arguments: ['@doctrine.orm.entity_manager', '@service_container']
+        tags:
+            - { name: twig.extension }

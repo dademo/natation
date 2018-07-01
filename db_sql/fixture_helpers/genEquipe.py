@@ -18,6 +18,8 @@ allEquipe.append([
 	'NULL',
 	# equipe.visionnable
 	False,
+	# equipe.notable
+	False,
 	# equipe.penalite
 	'NULL'
 ])
@@ -30,7 +32,8 @@ req = (
 	'\t' + str(equipe[3]) + ',\n' + 
 	'\t' + str(equipe[4]).upper() + ',\n' + 
 	'\t' + str(equipe[5]).upper() + ',\n' + 
-	'\t' + str(equipe[6]).upper() + '\n' + 
+	'\t' + str(equipe[6]).upper() + ',\n' + 
+	'\t' + str(equipe[7]).upper() + '\n' + 
 	')'
 	for equipe in allEquipe
 )

@@ -62,6 +62,7 @@ class Competition
      * @var Equipe
      *
      * @ORM\OneToMany(targetEntity="Equipe", mappedBy="idCompetition")
+     * @ORM\OrderBy({"ordrepassage" = "ASC"})
      */
     private $idEquipe;
 

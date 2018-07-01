@@ -13,13 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
 use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
-use NatationBundle\Entity\Utilisateur;
+use NatationAuthBundle\Entity\Utilisateur;
 use NatationBundle\Entity\Equipe;
+use NatationBundle\Entity\Note;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+
+use Symfony\Component\Form\FormError;
 
 
 class CompetitionController extends Controller
@@ -113,9 +118,7 @@ class CompetitionController extends Controller
         if($nJuge > 5) {
             $alerts[] = 'Il y a trop de juges pour cette compétition (' . $nJuge . '). Elle ne pourra pas démarrer';
         }
-
-
-
+        
         return $this->render('@Natation/Competition/showJudge.html.twig', array(
             'competition' => $competition,
             'allJugeCompetition' => $allJugecompetition,
@@ -136,28 +139,353 @@ class CompetitionController extends Controller
      */
     public function showEquipeCompetitionAction(int $competId)
     {
-        /*
         $competition = $this->getDoctrine()
             ->getRepository(Competition::class)
             ->find($competId);
 
-        // https://www.doctrine-project.org/api/orm/latest/Doctrine/ORM/EntityRepository.html#method_findBy
-        $allEquipes = $this->getDoctrine()
-            ->getRepository(Equipe::class)
-            ->findAll();
-
-
-        return $this->render('@Natation/Competition/showJudge.html.twig', array(
+        
+        return $this->render('@Natation/Competition/showTeam.html.twig', array(
             'competition' => $competition,
-            'allEquipes' => $allJugecompetition,
-            'alerts' => $alerts,
             'returnPageUrl' => $this->generateUrl(
                 'show_competition',
                 array(
                     'competId' => $competId,
                 )
             ),
-        ));*/
+        ));
+    }
+
+    /**
+     * @Route("/compet/new/{competId}/team", name="new_equipe", requirements={"competId"="\d+"})
+     * @Security("has_role('ROLE_CREATE_COMPET')")
+     */
+    public function newEquipeCompetitionAction(Request $request, int $competId)
+    {
+        $competition = $this->getDoctrine()
+            ->getRepository(Competition::class)
+            ->find($competId);
+
+        $equipe = new Equipe();
+
+        $equipe->setIdCompetition($competition);
+
+        $rawSql = 'select count(*) FROM equipe WHERE id_competition = ' . $competId;
+
+        $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
+        $stmt->execute([]);
+        
+        $ordrePassage = $stmt->fetchColumn(0) + 1;
+        
+        $equipe->setOrdrePassage($ordrePassage);
+
+        $equipe->setVisionnable(false);
+        $equipe->setNotable(false);
+
+
+        $form = $this->createFormBuilder($equipe)
+        ->add('nom', TextType::class, array('label' => 'Name'))
+        ->add('create', SubmitType::class)
+        ->getForm();
+    
+    
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $equipe = $form->getData();
+                
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($equipe);
+                $entityManager->flush();
+           
+                return $this->redirectToRoute('show_competition_teams', array('competId' => $competId));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                var_dump($ex->getMessage());
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+    
+        return $this->render('@Natation/Competition/new.html.twig', array(
+            'form_title' => 'Création d\'une nouvelle compétition',
+            'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl('all_competitions'),
+        ));
+    }
+
+    /**
+     * @Route("/compet/set/{equipeId}/begin", name="set_equipe_debut", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function setDebutEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser
+            ));
+
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            $equipe = $this->getDoctrine()
+                ->getRepository(Equipe::class)
+                ->find($equipeId);
+
+            $equipe->setDebut(new \DateTime('now'));
+
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($equipe);
+                $entityManager->flush();
+            
+                return $this->redirectToRoute('show_competition_teams', array(
+                    'competId' => $equipe->getIdCompetition()->getId(),
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                echo 'Exception inconnue : ' . $ex->getMessage();
+            }
+        } else {
+            return $this->redirect($request->headers->get('referer'));
+        }
+    }
+
+    /**
+     * @Route("/compet/set/{equipeId}/notable", name="set_equipe_notable", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function setNotableEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser
+            ));
+
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            $equipe = $this->getDoctrine()
+                ->getRepository(Equipe::class)
+                ->find($equipeId);
+
+            $equipe->setNotable(true);
+
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($equipe);
+                $entityManager->flush();
+            
+                return $this->redirectToRoute('show_competition_teams', array(
+                    'competId' => $equipe->getIdCompetition()->getId(),
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                echo 'Exception inconnue : ' . $ex->getMessage();
+            }
+        } else {
+            return $this->redirect($request->headers->get('referer'));
+        }
+    }
+
+
+    /**
+     * @Route("/compet/set/{equipeId}/visionnable", name="set_equipe_visionnable", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function setVisionnableEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser
+            ));
+
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            $equipe = $this->getDoctrine()
+                ->getRepository(Equipe::class)
+                ->find($equipeId);
+
+            $equipe->setVisionnable(true);
+
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($equipe);
+                $entityManager->flush();
+            
+                return $this->redirectToRoute('show_competition_teams', array(
+                    'competId' => $equipe->getIdCompetition()->getId(),
+                ));
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                echo 'Exception inconnue : ' . $ex->getMessage();
+            }
+        } else {
+            return $this->redirect($request->headers->get('referer'));
+        }
+    }
+
+    /**
+     * @Route("/compet/set/{equipeId}/note", name="set_equipe_note", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function noteEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser
+            ));
+
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge') {
+            $equipe = $this->getDoctrine()
+                ->getRepository(Equipe::class)
+                ->find($equipeId);
+                
+            $note = $this->getDoctrine()
+                ->getRepository(Note::class)
+                ->findOneBy(array(
+                    'idEquipe' => $equipeId,
+                    'idJugecompetition' => $jugeCompetition
+                    )
+                );
+
+            if ($note == null) {
+                $note = new Note();
+                $note->setidEquipe($equipe);
+                $note->setIdJugecompetition($jugeCompetition);
+            }
+
+            $form = $this->createFormBuilder($note)
+                ->add('note', NumberType::class, array(
+                    'label' => 'Note',
+                    'attr' => array(
+                        'min' => 0,
+                        'max' => 100,
+                    ),
+                    ))
+                ->add('Apply', SubmitType::class)
+                ->getForm();
+        
+        
+            $form->handleRequest($request);
+        
+            if ($form->isSubmitted() && $form->isValid()) {
+                $note = $form->getData();
+                    
+                try {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($note);
+                    $entityManager->flush();
+            
+                    return $this->redirectToRoute('show_competition_teams', array(
+                        'competId' => $equipe->getIdCompetition()->getId(),
+                    ));
+                } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                    var_dump($ex->getMessage());
+                    die();
+                    $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+                }
+            }
+
+            return $this->render('@Natation/Club/update.html.twig', array(
+                'form_title' => 'Ajout/Modification de la note pour l\'équipe ' . $equipe->getNom(),
+                'form' => $form->createView(),
+                'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
+                    'competId' => $equipe->getIdCompetition()->getId(),
+                )),
+            ));
+
+
+        } else {
+            return $this->redirect($request->headers->get('referer'));
+        }
+    }
+
+    /**
+     * @Route("/compet/set/{equipeId}/members", name="set_equipe_membres", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_CREATE_COMPET')")
+     */
+    public function setMembresEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        return new Response('OK');
+    }
+
+    /**
+     * @Route("/compet/set/{equipeId}/penalite", name="set_equipe_penalite", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function setPenaliteEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser
+            ));
+
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            $equipe = $this->getDoctrine()
+                ->getRepository(Equipe::class)
+                ->find($equipeId);
+
+
+                $form = $this->createFormBuilder($equipe)
+                ->add('penalite', ChoiceType::class, array(
+                    'label' => 'Penality',
+                    'choices' => array(
+                        '0' => 0,
+                        '0.5' => 0.5,
+                        '1' => 1,
+                        '1.5' => 1.5,
+                        '2' => 2,
+                    ),
+                    ))
+                ->add('Apply', SubmitType::class)
+                ->getForm();
+        
+        
+                $form->handleRequest($request);
+        
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $club = $form->getData();
+                    
+                    try {
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $entityManager->persist($club);
+                        $entityManager->flush();
+            
+                        return $this->redirectToRoute('show_competition_teams', array(
+                            'competId' => $equipe->getIdCompetition()->getId(),
+                        ));
+                    } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                        $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+                    }
+                }
+        
+        
+                return $this->render('@Natation/Club/update.html.twig', array(
+                    'form_title' => 'Création d\'un nouveau club',
+                    'form' => $form->createView(),
+                    'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
+                        'competId' => $equipe->getIdCompetition()->getId(),
+                    )),
+                ));
+        } else {
+            return $this->redirect($request->headers->get('referer'));
+        }
         return new Response('OK');
     }
 
@@ -266,16 +594,6 @@ class CompetitionController extends Controller
             ->findBy(array(
                 'id' => $tmpAllJuges
             ));
-/*
-        $q = $this->getDoctrine()
-            ->getRepository(Jugecompetition::class)
-            ->createQueryBuilder('JugeCompetition')
-            ->innerJoin('NatationBundle\Entity\JugeCompetition', 'utilisateur', 'ON', 'utilisateur.id = jugeCompetition.id_utilisateur')
-            ->innerJoin('NatationBundle\Entity\Utilisateur', 'utilisateur_typeUtilisateur', 'utilisateur_typeUtilisateur', 'utilisateur_typeUtilisateur.id_utilisateur = utilisateur.id')
-            ->andWhere('typeUtilisateur = \'ROLE_JUGE\'');
-
-            $allJugecompetition = $q->getQuery()->getResult();
-*/
 
         $_allTypeJuge = $this->getDoctrine()
             ->getRepository(TypeJuge::class)

@@ -123,7 +123,8 @@ CREATE TABLE public.equipe(
 	nom		VARCHAR(25) NOT NULL ,
 	ordrePassage	INT  NOT NULL ,
 	debut		TIMESTAMP ,
-	visionnable	BOOLEAN  NOT NULL ,
+	visionnable	BOOLEAN  NOT NULL DEFAULT false,
+	notable		BOOLEAN  NOT NULL DEFAULT false,
 	penalite	INT ,	-- out: x * 0.5
 	-- Contraints
 	CONSTRAINT prk_equipe_id PRIMARY KEY (id) ,

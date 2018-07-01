@@ -26,6 +26,7 @@ fileList=(
 	genEquipe_personne.py
 	genEquipe_jugeCompetition.py
 	updateHeureDebut.py
+	updateNotable.py
 	updateNotes.py
 	updateEquipePenalite.py
 	updateEquipeVisionnable.py

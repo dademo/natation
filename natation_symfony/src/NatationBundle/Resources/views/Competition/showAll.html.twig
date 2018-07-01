@@ -37,7 +37,7 @@
     {{ parent() }}
     <!-- Sélection au clic sur la ligne -->
     <script>
-        $('table.table tr').click(function(){
+        $('table.table tbody tr').click(function() {
             window.location.href = $(this).data('link');
         });
     </script>

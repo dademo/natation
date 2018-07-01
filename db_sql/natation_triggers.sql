@@ -280,6 +280,7 @@ LANGUAGE plpgsql
 -- Création d'une équipe:
 ---- Il faut que l'heure de début soit à NULL
 ---- Il faut qu'il ne soit pas visionnable
+---- Il faut qu'il ne soit pas notable
 ---- Il faut que la pénalité soit à NULL
 
 CREATE OR REPLACE FUNCTION trig_fct_equipe_afterInsert_newEquipe()
@@ -302,6 +303,7 @@ BEGIN
 	-- Valudation des valeurs par défaut
 	PERFORM checkValue_different(NEW.debut, NULL, 'La valeur de debut n''est pas NULL. Abandon');
 	PERFORM checkValue_different(NEW.visionnable, FALSE, 'La valeur de visionnable n''est pas à false. Abandon');
+	PERFORM checkValue_different(NEW.notable, FALSE, 'La valeur de notable n''est pas à false. Abandon');
 	PERFORM checkValue_different(NEW.penalite, NULL, 'La valeur de la pénalité n''est pas NULL. Abandon');
 
 	RETURN NEW;

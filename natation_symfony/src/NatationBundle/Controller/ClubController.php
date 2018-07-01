@@ -20,7 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
-use NatationBundle\Entity\Utilisateur;
+use NatationAuthBundle\Entity\Utilisateur;
 use NatationBundle\Entity\Equipe;
 use NatationBundle\Entity\Club;
 use NatationBundle\Entity\Personne;

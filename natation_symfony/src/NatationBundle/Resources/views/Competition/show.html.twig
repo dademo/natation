@@ -31,7 +31,7 @@
                 <ul>
                     {% for juge in competition.idJugecompetition %}
                         {% if juge.idTypeJuge.nom != 'Juge-arbitre' %}
-                        <li>{{ juge.idUtilisateur.idPersonne.nom }} {{ juge.idUtilisateur.idPersonne.prenom }}</li>
+                        <li>{{ juge.idUtilisateur.personne.nom }} {{ juge.idUtilisateur.personne.prenom }}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
@@ -42,7 +42,7 @@
             <th>Juge-arbitre :</th>
             {% for juge in competition.idJugecompetition %}
                 {% if juge.idTypeJuge.nom == 'Juge-arbitre' %}
-                <td>{{ juge.idUtilisateur.idPersonne.nom }} {{ juge.idUtilisateur.idPersonne.prenom }}</td>
+                <td>{{ juge.idUtilisateur.personne.nom }} {{ juge.idUtilisateur.personne.prenom }}</td>
                 {% endif %}
             {% endfor %}
             <td><a href="{{ path('show_competition_juges', {competId: competition.id}) }}"><i class="fa fa-fw fa-edit"></i></a></td>
@@ -57,7 +57,7 @@
                 </ul>
             </td>
             <td>
-            {% if is_granted('ROLE_CREATE_COMPET') %}
+            {% if is_granted('ROLE_CREATE_COMPET') or is_granted('ROLE_JUGE') %}
                 <a href="{{ path('show_competition_teams', {competId: competition.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-edit"></i></a>
             {% endif %}
             </td>

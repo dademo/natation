@@ -46,9 +46,16 @@ class Equipe
     /**
      * @var bool
      *
-     * @ORM\Column(name="visionnable", type="boolean", nullable=false)
+     * @ORM\Column(name="visionnable", type="boolean", nullable=false, options={"default":false})
      */
     private $visionnable;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="notable", type="boolean", nullable=false, options={"default":false})
+     */
+    private $notable;
 
     /**
      * @var int|null
@@ -70,7 +77,7 @@ class Equipe
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToOne(targetEntity="Note", mappedBy="idEquipe")
+     * @ORM\OneToMany(targetEntity="Note", mappedBy="idEquipe")
      */
     private $idNote;
 
@@ -94,8 +101,8 @@ class Equipe
      */
     public function __construct()
     {
-        $this->idJugecompetition = new \Doctrine\Common\Collections\ArrayCollection();
         $this->idPersonne = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->idNote = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -196,6 +203,30 @@ class Equipe
     }
 
     /**
+     * Get notable.
+     *
+     * @return bool
+     */
+    public function getNotable()
+    {
+        return $this->notable;
+    }
+
+    /**
+     * Set notable.
+     *
+     * @param bool $notable
+     *
+     * @return Equipe
+     */
+    public function setNotable($notable)
+    {
+        $this->notable = $notable;
+
+        return $this;
+    }
+
+    /**
      * Get visionnable.
      *
      * @return bool
@@ -214,7 +245,7 @@ class Equipe
      */
     public function setPenalite($penalite = null)
     {
-        $this->penalite = $penalite;
+        $this->penalite = $penalite * 2;
 
         return $this;
     }
@@ -226,7 +257,7 @@ class Equipe
      */
     public function getPenalite()
     {
-        return $this->penalite;
+        return $this->penalite * 0.5;
     }
 
     /**
@@ -323,5 +354,27 @@ class Equipe
     public function getIdPersonne()
     {
         return $this->idPersonne;
+    }
+
+    /**
+     * Get note.
+     *
+     * @return integer
+     */
+    public function getNote()
+    {
+        $note = 0;
+        $nArbitres = 0;
+
+        foreach($this->idNote as $_note) {
+            $note += $_note->getNote();
+            $nArbitres ++;
+        }
+
+        $note /= $nArbitres;
+
+        $note -= $this->penalite * 0.5;
+
+        return $note;
     }
 }

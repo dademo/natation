@@ -25,6 +25,8 @@ class Note
     /**
      * @var \Jugecompetition
      *
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\ManyToOne(targetEntity="Jugecompetition", inversedBy="idNote")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_jugeCompetition", referencedColumnName="id")
@@ -38,7 +40,7 @@ class Note
      *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\OneToOne(targetEntity="Equipe", inversedBy="idNote")
+     * @ORM\ManyToOne(targetEntity="Equipe", inversedBy="idNote")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_equipe", referencedColumnName="id")
      * })
@@ -51,7 +53,7 @@ class Note
      */
     public function __construct()
     {
-        $this->idEquipe = new \Doctrine\Common\Collections\ArrayCollection();
+        
     }
 
 
@@ -92,11 +94,11 @@ class Note
     /**
      * Set idJugecompetition.
      *
-     * @param \NatationBundle\Entity\JugeCompetition|null $idTypejuge
+     * @param \NatationBundle\Entity\Jugecompetition|null $idTypejuge
      *
      * @return Note
      */
-    public function setIdJugeCompetition(\NatationBundle\Entity\JugeCompetion $idJugecompetition = null)
+    public function setIdJugeCompetition(\NatationBundle\Entity\Jugecompetition $idJugecompetition = null)
     {
         $this->idJugecompetition = $idJugecompetition;
 
@@ -104,39 +106,27 @@ class Note
     }
 
     /**
-     * Get idJugeCompetion.
+     * Get idJugecompetion.
      *
-     * @return \NatationBundle\Entity\JugeCompetition|null
+     * @return \NatationBundle\Entity\Jugecompetition|null
      */
     public function getIdJugeCompetition()
     {
-        return $this->idJugeCidJugecompetitionompetion;
+        return $this->idJugecompetition;
     }
 
     /**
-     * Add idEquipe.
+     * Set idEquipe.
      *
      * @param \NatationBundle\Entity\Equipe $idEquipe
      *
      * @return Note
      */
-    public function addIdEquipe(\NatationBundle\Entity\Equipe $idEquipe)
+    public function setIdEquipe(\NatationBundle\Entity\Equipe $idEquipe)
     {
-        $this->idEquipe[] = $idEquipe;
+        $this->idEquipe = $idEquipe;
 
         return $this;
-    }
-
-    /**
-     * Remove idEquipe.
-     *
-     * @param \NatationBundle\Entity\Equipe $idEquipe
-     *
-     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
-     */
-    public function removeIdEquipe(\NatationBundle\Entity\Equipe $idEquipe)
-    {
-        return $this->idEquipe->removeElement($idEquipe);
     }
 
     /**

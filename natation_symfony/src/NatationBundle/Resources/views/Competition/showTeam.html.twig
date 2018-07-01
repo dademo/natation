@@ -5,45 +5,105 @@
 {% endblock %}
 
 {% block app_body_title %}
-    Tous les juges de la comp&eacute;tition "{{ competition.titre }}"
+    Toutes les &eacute;quipes de la comp&eacute;tition "{{ competition.titre }}"
 {% endblock %}
 
 {% block app_body %}
-    {% if alerts|length > 0 %}
-        <div class="alert alert-warning" role="alert">
-            {% for alert in alerts %}
-                <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{ alert }} <br/>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-success" role="alert">
-            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Aucun probl&egrave;me &agrave; signaler. La comp&eacute;tition peut commencer.
-        </div>
-    {% endif %}
     <table class="table table-hover">
     <thead>
         <th>Ordre de passage</th>
-        <th>Nom</th>
+        <th>Nom de l'&eacute;quipe</th>
+        <th>Membres de l'&eacute;quipe</th>
+        <th>Statut</th>
         <th>Debut du passage</th>
+        <th>P&eacute;nalit&eacute;</th>
+        <th>Note</th>
+        {% if has_compet_role(competition, 'Juge-arbitre') %}
+        <th>Commencer</th>
         <th></th>
+        {% elseif has_compet_role(competition, 'Juge') %}
+        <th></th>
+        <th></th>
+        {% else %}
+        <th></th>
+        {% endif %}
     </thead>
     <tbody>
-    {% for jugeCompetition in allJugeCompetition %}
+    {% for equipe in competition.idEquipe %}
         <tr>
-            <th>
-            {% if jugeCompetition.rang >= 0 %}
-            {{ jugeCompetition.rang }}
+            <th>{{ equipe.ordrePassage }}</th>
+            <th>{{ equipe.nom }}</th>
+            <td>
+                <ul>
+                    {% for personne in equipe.idPersonne %}
+                        <li>{{ personne }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+            {% if equipe.visionnable %}
+                Visionnable
+            {% elseif equipe.notable %}
+                En cours de notation
+            {% elseif equipe.debut != null %}
+                En passage
             {% else %}
-                -
+                En attente
             {% endif %}
-            </th>
-            <td>{{ jugeCompetition.idUtilisateur.idPersonne.nom }} {{ jugeCompetition.idUtilisateur.idPersonne.prenom }}</td>
-            <td>{{ jugeCompetition.idTypejuge.nom }}</td>
+            </td>
+            <td>
+            {% if equipe.debut != null %}
+                {{ equipe.debut|date('y-m-d H:i:s') }}
+                {% else %}
+                    - 
+            {% endif %}
+            </td>
+            {% if equipe.visionnable %}
+            <td>{{ equipe.penalite }}</td>
+            <td>{{ equipe.note }}</td>
+            {% else %}
+            <td> - </td>
+            <td> - </td>
+            {% endif %}
+            {% if has_compet_role(competition, 'Juge-arbitre') %}
+                {% if equipe.debut == null %}
+                <td><a href="{{ path('set_equipe_debut', {equipeId: equipe.id}) }}"><button class="btn btn-primary">Commencer</button></a></td>
+                {% elseif equipe.notable == false %}
+                <td><a href="{{ path('set_equipe_notable', {equipeId: equipe.id}) }}"><button class="btn btn-primary">Rendre notable</button></a></td>
+                <td></td>
+                {% else %}
+                    {% if nNotes_equipe(equipe) == 5 and not equipe.visionnable %}
+                    <td><a href="{{ path('set_equipe_visionnable', {equipeId: equipe.id}) }}"><button class="btn btn-primary">Rendre visionnable</button></a></td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                <td>
+                    {% if not equipe.visionnable %}
+                    <a href="{{ path('set_equipe_penalite', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a>
+                    {% endif %}
+                </td>
+                {% endif %}
+            {% elseif has_compet_role(competition, 'Juge') %}
+                <td>
+                    {% if equipe.notable %}
+                    <a href="{{ path('set_equipe_note', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a>
+                    {% endif %}
+                </td>
+            {% endif %}
+            {% if is_granted('ROLE_CREATE_COMPET') %}
+                {% if equipe.debut == null %}
+                    <td><a href="{{ path('set_equipe_membres', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a></td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% elseif equipe.debut == null %}
+                <td></td>
+            {% endif %}
         </tr>
     {% endfor %}
     </tbody>
     </table>
     {% if is_granted('ROLE_CREATE_COMPET') %}
-    <a href="{{ path('set_competition_juges', {competId: competition.id}) }}"><button class="btn btn-primary">Modifier</button></a>
+    <a href="{{ path('new_equipe', {competId: competition.id}) }}"><button class="btn btn-primary">Ajouter</button></a>
     {% endif %}
 {% endblock %}
