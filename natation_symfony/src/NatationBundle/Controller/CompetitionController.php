@@ -16,6 +16,11 @@ use NatationBundle\Entity\TypeJuge;
 use NatationBundle\Entity\Utilisateur;
 use NatationBundle\Entity\Equipe;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+
 
 class CompetitionController extends Controller
 {
@@ -315,12 +320,38 @@ class CompetitionController extends Controller
      * @Route("/compet/new", name="new_competition")
      * @Security("has_role('ROLE_CREATE_COMPET')")
      */
-    public function newCompetitionAction()
+    public function newCompetitionAction(Request $request)
     {
-        $allCompet = $this->getDoctrine()
-            ->getRepository(Competition::class)
-            ->findAll();
+        $competition = new Competition();
 
-        return $this->render('@Natation/Competition/new.html.twig');
+        $form = $this->createFormBuilder($competition)
+        ->add('titre', TextType::class, array('label' => 'Title'))
+        ->add('datecompetition', DateType::class, array('label' => 'Date'))
+        ->add('idLieu', EntityType::class, array('label' => 'Location', 'class' => 'NatationBundle:Lieu'))
+        ->add('create', SubmitType::class)
+        ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $competition = $form->getData();
+            
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($competition);
+                $entityManager->flush();
+        
+                return $this->redirectToRoute('all_competitions');
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+        return $this->render('@Natation/Competition/new.html.twig', array(
+            'form_title' => 'Création d\'une nouvelle compétition',
+            'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl('all_competitions'),
+        ));
     }
 }

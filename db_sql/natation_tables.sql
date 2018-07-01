@@ -168,7 +168,6 @@ CREATE TABLE public.jugeCompetition(
 	-- Constraints
 	CONSTRAINT prk_jugeCompetition_id PRIMARY KEY (id),
 	UNIQUE(id_competition, rang) DEFERRABLE INITIALLY DEFERRED,		-- Un seul juge du même rang pour la même compétition
-	UNIQUE(id_utilisateur, rang) DEFERRABLE INITIALLY DEFERRED,		-- Un seul utilisateur par rang
 	UNIQUE(id_competition, id_utilisateur) DEFERRABLE INITIALLY DEFERRED	-- Un seul même utilisateur par compétition
 );
 

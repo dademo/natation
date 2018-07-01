@@ -40,16 +40,22 @@ class ClubController extends Controller
         ->getRepository(Club::class)
         ->findAll();
 
-        $rawSql = "SELECT
-            COUNT(*) AS nInscrits,
+        $rawSql = 'SELECT
+            SUM(
+				CASE
+					WHEN club_personne.id_personne IS NOT NULL THEN 1
+					ELSE 0
+				END
+			) AS nInscrits,
             club.id AS idClub
         FROM club
-        INNER JOIN club_personne
+        LEFT JOIN club_personne
             ON club_personne.id_club = club.id
         WHERE club_personne.dateFinInscription IS NULL
             OR club_personne.dateFinInscription >= current_date
         GROUP BY club.id
-        ";
+		ORDER BY club.id ASC
+        ';
 
         $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
         $stmt->execute([]);
@@ -71,17 +77,39 @@ class ClubController extends Controller
      * @Route("/club/new", name="new_club")
      * @Security("has_role('ROLE_CREATE_COMPET')")
      */
-    public function newClubAction()
+    public function newClubAction(Request $request)
     {
-        $allClubs = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->findAll();
+        $club = new Club();
 
-        return $this->render('@Natation/Club/showAll.html.twig', array(
-            'allClubs' => $allClubs,
-            'returnPageUrl' => $this->generateUrl(
-                'all_clubs'
-            ),
+        $form = $this->createFormBuilder($club)
+        ->add('nom', TextType::class, array('label' => 'Name'))
+        ->add('idDirigent', EntityType::class, array('label' => 'Leader', 'class' => 'NatationBundle:Personne'))
+        ->add('idLieu', EntityType::class, array('label' => 'Location', 'class' => 'NatationBundle:Lieu'))
+        ->add('create', SubmitType::class)
+        ->getForm();
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $club = $form->getData();
+            
+            try {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($club);
+                $entityManager->flush();
+        
+                return $this->redirectToRoute('all_clubs');
+            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+            }
+        }
+
+
+        return $this->render('@Natation/Club/update.html.twig', array(
+            'form_title' => 'Création d\'un nouveau club',
+            'form' => $form->createView(),
+            'returnPageUrl' => $this->generateUrl('all_clubs'),
         ));
     }
 
@@ -99,7 +127,7 @@ class ClubController extends Controller
         $allNotes = $this->getDoctrine()
         ->getRepository(Note::class)
         ->findAll();
-
+/*
         $rawSql = "SELECT
             COUNT(*) AS nInscrits,
             club.id AS idClub
@@ -110,7 +138,24 @@ class ClubController extends Controller
             OR club_personne.dateFinInscription >= current_date)
             AND club.id = " . $clubId . "
         GROUP BY club.id
-        ";
+        ";*/
+
+        $rawSql = 'SELECT
+            SUM(
+				CASE
+					WHEN club_personne.id_personne IS NOT NULL THEN 1
+					ELSE 0
+				END
+			) AS nInscrits,
+            club.id AS idClub
+        FROM club
+        LEFT JOIN club_personne
+            ON club_personne.id_club = club.id
+        WHERE club_personne.dateFinInscription IS NULL
+            OR club_personne.dateFinInscription >= current_date
+            AND club.id = ' . $clubId . '
+        GROUP BY club.id
+        ';
 
         $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
         $stmt->execute([]);
