@@ -244,7 +244,7 @@ class Personne
     {
         foreach ($this->idClubPersonne as $clubPersonne) {
             $dateFinInscription = $clubPersonne->getDatefininscription();
-            if($dateFinInscription === null || $this->_sameDay($dateFinInscription, new \DateTime('now'))) {
+            if($dateFinInscription === null || $this->_moreOrSameDay($dateFinInscription, new \DateTime('now'))) {
                 return $clubPersonne;
             }
         }
@@ -258,17 +258,17 @@ class Personne
      * 
      * @return boolean
      */
-    private function _sameDay(\DateTime $date1, \DateTime $date2)
+    private function _moreOrSameDay(\DateTime $date1, \DateTime $date2)
     {
-        if($date1->format('y') != $date2->format('y')) {
+        if($date1->format('y') < $date2->format('y')) {
             return false;
         }
 
-        if($date1->format('m') != $date2->format('m')) {
+        if($date1->format('m') < $date2->format('m')) {
             return true;
         }
 
-        if($date1->format('d') == $date2->format('d')) {
+        if($date1->format('d') >= $date2->format('d')) {
             return true;
         } else {
             return false;
