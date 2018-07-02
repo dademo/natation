@@ -31,7 +31,7 @@ class ClubPersonne
      *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\ManyToOne(targetEntity="Club", inversedBy="idClubPersonne")
+     * @ORM\ManyToOne(targetEntity="Club", inversedBy="idClubPersonne", fetch="EAGER")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_club", referencedColumnName="id")
      * })

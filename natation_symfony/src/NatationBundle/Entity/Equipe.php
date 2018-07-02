@@ -67,7 +67,7 @@ class Equipe
     /**
      * @var \Competition
      *
-     * @ORM\ManyToOne(targetEntity="Competition", inversedBy="idEquipe")
+     * @ORM\ManyToOne(targetEntity="Competition", inversedBy="idEquipe", fetch="EAGER")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_competition", referencedColumnName="id")
      * })

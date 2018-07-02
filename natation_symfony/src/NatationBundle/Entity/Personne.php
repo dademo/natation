@@ -55,7 +55,7 @@ class Personne
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idPersonne")
+     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idPersonne", fetch="EAGER")
      */
     private $idClubPersonne;
     
@@ -248,7 +248,22 @@ class Personne
                 return $clubPersonne;
             }
         }
-        var_dump(false);
+
+        return null;
+    }
+
+    /**
+     * Get current equipe.
+     *
+     * @return \NatationBundle\Entity\Equipe 
+     */
+    public function getCurrIdEquipe()
+    {
+        foreach ($this->idEquipe as $equipe) {
+            if ($this->_sameDay($equipe->getIdCompetition()->getDatecompetition(), new \DateTime("now"))) {
+                return $equipe;
+            }
+        }
 
         return null;
     }
@@ -269,6 +284,23 @@ class Personne
         }
 
         if($date1->format('d') >= $date2->format('d')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function _sameDay(\DateTime $date1, \DateTime $date2)
+    {
+        if($date1->format('y') != $date2->format('y')) {
+            return false;
+        }
+
+        if($date1->format('m') != $date2->format('m')) {
+            return true;
+        }
+
+        if($date1->format('d') == $date2->format('d')) {
             return true;
         } else {
             return false;

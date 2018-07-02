@@ -1,0 +1,135 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block app_body_title %}
+    Mise &agrave; jour des membre de l'&eacute;quipe {{ equipe.nom }}
+{% endblock %}
+
+{% block app_body %}
+    {% if alerts|length > 0 %}
+        <div class="alert alert-warning" role="alert">
+            {% for alert in alerts %}
+                <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{ alert }} <br/>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <label id="nMembers"></label>
+
+    {# FORM #}
+    <form name="form" id="form" method="post">
+
+    <input type="submit" class="btn btn-primary" name="bSubmit" value="Valider" style="margin-bottom: 15px;"/>
+
+    <input type="hidden" name="all_membres_equipe" id='all_membres_equipe'/>
+
+    <table id="tab_all_membres_equipe" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Appartient à l'&eacute;quipe</th>
+                <th>Nom</th>
+                <th>Pr&eacute;nom</th>
+                <th>Club</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for personne in allPersonnes %}
+            <tr data-personneId="{{ personne.id }}" data-clubId="{{ personne.currIdClubPersonne.idClub.id }}">
+                <td>
+                    <input class="form-control" type="checkbox" value="{{ personne.id }}"
+                    {% if allEquipeMembres[personne.id] is defined %} checked {% endif %} />
+                    </td>
+                <td>{{ personne.nom }}</td>
+                <td>{{ personne.prenom }}</td>
+                <td>{{ personne.currIdClubPersonne.idClub.nom }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    </form>
+{% endblock %}
+
+{% block userjs %}
+    {{ parent() }}
+
+    <!-- Création d'une datatable -->
+    <script>
+    $(document).ready( function () {
+        // Datatable
+        $('#tab_all_membres_equipe').DataTable({
+            language: {
+                url: '{{ asset("datatable_langs/fr.lang.json") }}'
+                //"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json"
+            }
+        });
+
+        var $allMembersObj = [];
+
+        var nMembers = 0;
+
+        // Init function
+        function _tableRow_get(element) {
+            var $_var = {
+                // vars
+                membreCbx: $(element).find(':nth-child(1)>input'),
+                personneId: $(element).data('personneId'),
+                clubId: $(element).data('clubId'),
+                // functions
+                getMembreCbx: function() { return $(this.membreCbx).prop('checked'); },
+                getPersonneId: function() { return this.personneId; },
+                getClubId: function() { return this.clubId; }
+            };
+            
+            // Triggers
+            $($_var.membreCbx).change(function() {
+                if(this.checked) {
+                    // check
+                    nMembers++;
+                } else {
+                    // decheck
+                    nMembers--;
+                }
+                $('#nMembers').text(nMembers + ' membres sélectionnés');
+            });
+
+            //Render
+            if ($_var.membreCbx.prop('checked')) {
+                nMembers++;
+            }
+            
+            return $_var;
+        }
+
+        // INIT //
+        $('#all_membres_equipe').children('tbody').children().each(function(index, element) {
+            $allMembersObj.push(_tableRow_get(element));
+        });
+
+        $('#form').submit(function(event) {
+            //event.preventDefault();
+            //event.preventDefault();
+            // Compilation des résultats
+            res = [];
+
+            $($allMembersObj).each(function(index, element) {
+                if(element.getMembreCbx()) {
+                    res.push({
+                        idPersonne: element.getPersonneId(),
+                        idClub: element.getClubId()
+                    });
+                }
+            });
+
+            $('#all_membres_equipe').val(JSON.stringify(res));
+
+            return false;
+        });
+
+        
+        $('#nMembers').text(nMembers + ' personnes sélectionnés');
+        //find("[data-slide='${current}']")
+
+        
+    } );
+    </script>
+
+{% endblock %}

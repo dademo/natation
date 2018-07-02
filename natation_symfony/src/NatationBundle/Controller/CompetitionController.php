@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
+use NatationBundle\Entity\Personne;
 use NatationAuthBundle\Entity\Utilisateur;
 use NatationBundle\Entity\Equipe;
 use NatationBundle\Entity\Note;
@@ -200,7 +201,6 @@ class CompetitionController extends Controller
            
                 return $this->redirectToRoute('show_competition_teams', array('competId' => $competId));
             } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                var_dump($ex->getMessage());
                 $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
             }
         }
@@ -369,7 +369,7 @@ class CompetitionController extends Controller
                 ->add('note', NumberType::class, array(
                     'label' => 'Note',
                     'attr' => array(
-                        'min' => 0,
+                        'min' => 0,'returnPageUrl' => $this->generateUrl('all_competitions'),
                         'max' => 100,
                     ),
                     ))
@@ -391,8 +391,6 @@ class CompetitionController extends Controller
                         'competId' => $equipe->getIdCompetition()->getId(),
                     ));
                 } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                    var_dump($ex->getMessage());
-                    die();
                     $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
                 }
             }
@@ -402,7 +400,7 @@ class CompetitionController extends Controller
                 'form' => $form->createView(),
                 'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
                     'competId' => $equipe->getIdCompetition()->getId(),
-                )),
+                )),'returnPageUrl' => $this->generateUrl('all_competitions'),
             ));
 
 
@@ -417,6 +415,78 @@ class CompetitionController extends Controller
      */
     public function setMembresEquipeCompetitionAction(Request $request, int $equipeId)
     {
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
+            //https://stackoverflow.com/questions/12862389/symfony2-doctrine-create-custom-sql-query
+        $rawSql = "SELECT personne.id
+        FROM personne
+        -- Club
+        INNER JOIN club_personne
+            ON club_personne.id_personne = personne.id
+        WHERE personne.id NOT IN (
+            SELECT personne.id
+            FROM personne
+            -- Competition; les personnes ne sont pas déjà inscrites
+            INNER JOIN equipe_personne
+                ON equipe_personne.id_personne = personne.id
+            INNER JOIN equipe
+                ON equipe_personne.id_equipe = equipe.id
+            INNER JOIN competition
+                ON competition.id = equipe.id_competition
+            -- Competition
+            WHERE equipe.id_competition = :idCompet
+            )
+            -- Club
+            AND (club_personne.dateFinInscription IS NULL
+                 OR club_personne.dateFinInscription >= :dateCompet
+                )
+            ";
+
+        $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
+        //$stmt->bindValue(':idCompet', $equipe->getIdCompetition()->getId());
+        //$stmt->bindValue(':dateCompet', date_format($equipe->getIdCompetition()->getDatecompetition(), 'Y-m-d'), \PDO::PARAM_STR);
+        $stmt->execute(array(
+            ':idCompet' => $equipe->getIdCompetition()->getId(),
+            ':dateCompet' => date_format($equipe->getIdCompetition()->getDatecompetition(), 'Y-m-d'),
+        ));
+
+
+        $_all_id_personnes = $stmt->fetchAll();
+
+        $all_id_personnes = array();
+        foreach($_all_id_personnes as $val) {
+            $all_id_personnes[] = $val['id'];
+        }
+
+
+        $allPersonnes = $this->getDoctrine()
+            ->getRepository(Personne::class)
+            ->findBy(array(
+                'id' => $all_id_personnes
+            ));
+
+/*
+        $allPersonnes = array();
+
+        foreach($_allPersonnes as $personne) {
+            if($personne->getCurrIdClubPersonne() !== null && $personne->getCurrIdEquipe() === null) {
+                $allPersonnes[] = $personne;
+            }
+        }*/
+
+        $alerts = array();
+
+        return $this->render('@Natation/Competition/setEquipeMembresForm.html.twig', array(
+            'equipe' => $equipe,
+            'alerts' => $alerts,
+            'allPersonnes' => $allPersonnes,
+            'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            )),
+        ));
+
         return new Response('OK');
     }
 
@@ -486,7 +556,6 @@ class CompetitionController extends Controller
         } else {
             return $this->redirect($request->headers->get('referer'));
         }
-        return new Response('OK');
     }
 
     /**
