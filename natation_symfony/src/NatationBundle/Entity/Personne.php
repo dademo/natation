@@ -262,8 +262,12 @@ class Personne
         foreach ($this->idClubPersonne as $clubPersonne) {
             $dateDebutInscription = $clubPersonne->getDateinscription();
             $dateFinInscription = $clubPersonne->getDatefininscription();
-            if($this->_dateBetween($date, $dateDebutInscription, $dateFinInscription)) {
+            if($dateFinInscription == null && $this->_moreOrSameDay($date, $dateDebutInscription)) {
                 return $clubPersonne->getIdClub();
+            } else {
+                if($this->_dateBetween($date, $dateDebutInscription, $dateFinInscription)) {
+                    return $clubPersonne->getIdClub();
+                }
             }
         }
 
