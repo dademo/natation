@@ -53,16 +53,6 @@ class ClubPersonne
 
 
     /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
      * Set dateinscription.
      *
      * @param \DateTime $dateinscription

@@ -35,7 +35,7 @@
             <tr data-personneId="{{ personne.id }}" data-clubId="{{ personne.currIdClubPersonne.idClub.id }}">
                 <td>
                     <input class="form-control" type="checkbox" value="{{ personne.id }}"
-                    {% if allEquipeMembres[personne.id] is defined %} checked {% endif %} />
+                    {% if personne.id in allEquipeMembres %} checked {% endif %} />
                     </td>
                 <td>{{ personne.nom }}</td>
                 <td>{{ personne.prenom }}</td>
@@ -71,7 +71,7 @@
             var $_var = {
                 // vars
                 membreCbx: $(element).find(':nth-child(1)>input'),
-                personneId: $(element).data('personneId'),
+                personneId: $(element).data('personneid'),
                 clubId: $(element).data('clubId'),
                 // functions
                 getMembreCbx: function() { return $(this.membreCbx).prop('checked'); },
@@ -100,7 +100,7 @@
         }
 
         // INIT //
-        $('#all_membres_equipe').children('tbody').children().each(function(index, element) {
+        $('#tab_all_membres_equipe').children('tbody').children().each(function(index, element) {
             $allMembersObj.push(_tableRow_get(element));
         });
 
@@ -112,16 +112,18 @@
 
             $($allMembersObj).each(function(index, element) {
                 if(element.getMembreCbx()) {
-                    res.push({
-                        idPersonne: element.getPersonneId(),
-                        idClub: element.getClubId()
-                    });
+                    res.push(element.getPersonneId());
                 }
             });
 
+            //$('#all_membres_equipe').val(JSON.stringify(res));
             $('#all_membres_equipe').val(JSON.stringify(res));
 
-            return false;
+            if(res.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
         });
 
         

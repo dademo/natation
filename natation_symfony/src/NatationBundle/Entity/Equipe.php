@@ -329,6 +329,14 @@ class Equipe
      */
     public function addIdPersonne(\NatationBundle\Entity\Personne $idPersonne)
     {
+        // On vérifie que la personne n'est pas déjà dans l'entité
+
+        foreach($this->idPersonne as $personne) {
+            if($personne->getId() == $idPersonne->getid()) {
+                return $this;
+            }
+        }
+
         $this->idPersonne[] = $idPersonne;
 
         return $this;
@@ -344,6 +352,18 @@ class Equipe
     public function removeIdPersonne(\NatationBundle\Entity\Personne $idPersonne)
     {
         return $this->idPersonne->removeElement($idPersonne);
+    }
+
+    /**
+     * Clean idPersonne.
+     *
+     * @return Equipe
+     */
+    public function cleanIdPersonne()
+    {
+        $this->idPersonne = new \Doctrine\Common\Collections\ArrayCollection();
+
+        return $this;
     }
 
     /**
