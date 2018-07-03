@@ -39,7 +39,8 @@ class CompetRoleExtension extends \Twig_Extension
         $jugeCompet = $this->em
             ->getRepository(JugeCompetition::class)
             ->findOneBy(array(
-                'idUtilisateur' => $loggedUser
+                'idUtilisateur' => $loggedUser,
+                'idCompetition' => $competition,
             ));
 
         // Si aucun rôle dans la competition en cours, on renvoie false

@@ -138,4 +138,9 @@ class Note
     {
         return $this->idEquipe;
     }
+
+    public function __toString()
+    {
+        return ($this->note === null)? "-" : strval($this->note);
+    }
 }

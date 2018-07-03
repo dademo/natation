@@ -1,0 +1,30 @@
+{% extends '@Natation/base.html.twig' %}
+
+{% block title %}
+    Natation synchronisée - Compétition
+{% endblock %}
+
+{% block app_body_title %}
+    Notes de l'&eacute;quipe  "{{ equipe.nom }}"
+{% endblock %}
+
+{% block app_body %}
+    <table class="table table-hover">
+        <thead>
+            <th>Juge-arbitre</th>
+            <th>Note</th>
+            <th></th>
+        </thead>
+        <tbody>
+        {% for note in allNotes %}
+            <tr>
+                <th>{{ note.idJugecompetition.idUtilisateur.personne }}</th>
+                <th>{{ note }}</th>
+                <td>
+                    <a href="{{ path('set_juge_note', {equipeId: equipe.id, jugeId: note.idJugecompetition.id}) }}"><i class="fa fa-fw fa-edit"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

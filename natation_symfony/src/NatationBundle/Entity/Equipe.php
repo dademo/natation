@@ -291,7 +291,7 @@ class Equipe
      *
      * @return Equipe
      */
-    public function addIdNote(\NatationBundle\Entity\Jugecompetition $idNote)
+    public function addIdNote(\NatationBundle\Entity\Note $idNote)
     {
         $this->idNote[] = $idNote;
 
