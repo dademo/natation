@@ -1,0 +1,13 @@
+{# app/Resources/TwigBundle/views/Exception/error404.html.twig #}
+{% extends '@Natation/base.html.twig' %}
+
+
+{% block app_body_title %}
+    Erreur {{ status_code }} : {{ status_text }}
+{% endblock %}
+
+{% block app_body %}
+
+    Cliquez <a href="{{ path('homepage') }}">ici</a> pour retourner à l'accueil
+
+{% endblock %}

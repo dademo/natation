@@ -54,3 +54,9 @@ services:
         arguments: ['@doctrine.orm.entity_manager', '@service_container']
         tags:
             - { name: twig.extension }
+
+
+    app.exception_controller:
+        class: NatationBundle\Controller\ExceptionController
+        arguments: ['@twig', '%kernel.debug%']
+        tags: ['controller.service_arguments']
