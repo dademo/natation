@@ -79,20 +79,21 @@
                     {% endif %}
                 <td>
                     {% if not equipe.visionnable %}
-                    <a href="{{ path('set_equipe_penalite', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a>
+                    <a href="{{ path('show_juge_note', {equipeId: equipe.id}) }}"  title="&Eacute;diter les notes des juges"><i class="fa fa-fw fa-edit"></i></a>
+                    <a href="{{ path('set_equipe_penalite', {equipeId: equipe.id}) }}"  title="Appliquer une p&eacute;nalit&eacute;"><i class="fa fa-fw fa-arrow-right"></i></a>
                     {% endif %}
                 </td>
                 {% endif %}
             {% elseif has_compet_role(competition, 'Juge') %}
                 <td>
                     {% if equipe.notable %}
-                    <a href="{{ path('set_equipe_note', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a>
+                    <a href="{{ path('set_equipe_note', {equipeId: equipe.id}) }}"  title="Noter"><i class="fa fa-fw fa-arrow-right"></i></a>
                     {% endif %}
                 </td>
             {% endif %}
             {% if is_granted('ROLE_CREATE_COMPET') %}
                 {% if equipe.debut == null %}
-                    <td><a href="{{ path('set_equipe_membres', {equipeId: equipe.id}) }}"  title="&Eacute;diter"><i class="fa fa-fw fa-arrow-right"></i></a></td>
+                    <td><a href="{{ path('set_equipe_membres', {equipeId: equipe.id}) }}"  title="&Eacute;diter les membres de l'&eacute;quipe"><i class="fa fa-fw fa-arrow-right"></i></a></td>
                 {% else %}
                     <td></td>
                 {% endif %}

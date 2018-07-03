@@ -55,7 +55,7 @@ class Personne
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idPersonne")
+     * @ORM\OneToMany(targetEntity="ClubPersonne", mappedBy="idPersonne", fetch="EAGER")
      */
     private $idClubPersonne;
     
@@ -248,7 +248,44 @@ class Personne
                 return $clubPersonne;
             }
         }
-        var_dump(false);
+
+        return null;
+    }
+
+    /**
+     * Get club at a certain DateTime
+     *
+     * @return \NatationBundle\Entity\ClubPersonne 
+     */
+    public function getClubAt(\Datetime $date)
+    {
+        foreach ($this->idClubPersonne as $clubPersonne) {
+            $dateDebutInscription = $clubPersonne->getDateinscription();
+            $dateFinInscription = $clubPersonne->getDatefininscription();
+            if($dateFinInscription == null && $this->_moreOrSameDay($date, $dateDebutInscription)) {
+                return $clubPersonne->getIdClub();
+            } else {
+                if($this->_dateBetween($date, $dateDebutInscription, $dateFinInscription)) {
+                    return $clubPersonne->getIdClub();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get current equipe.
+     *
+     * @return \NatationBundle\Entity\Equipe 
+     */
+    public function getCurrIdEquipe()
+    {
+        foreach ($this->idEquipe as $equipe) {
+            if ($this->_sameDay($equipe->getIdCompetition()->getDatecompetition(), new \DateTime("now"))) {
+                return $equipe;
+            }
+        }
 
         return null;
     }
@@ -260,6 +297,7 @@ class Personne
      */
     private function _moreOrSameDay(\DateTime $date1, \DateTime $date2)
     {
+        /*
         if($date1->format('y') < $date2->format('y')) {
             return false;
         }
@@ -273,5 +311,41 @@ class Personne
         } else {
             return false;
         }
+        */
+        return ($this->_getDay($date1)->getTimestamp() >= $this->_getDay($date2)->getTimestamp());
+    }
+
+    private function _sameDay(\DateTime $date1, \DateTime $date2)
+    {
+        /*
+        if($date1->format('y') != $date2->format('y')) {
+            return false;
+        }
+
+        if($date1->format('m') != $date2->format('m')) {
+            return true;
+        }
+
+        if($date1->format('d') == $date2->format('d')) {
+            return true;
+        } else {
+            return false;
+        }
+        */
+
+        return ($this->_getDay($date1)->getTimestamp() == $this->_getDay($date2)->getTimestamp());
+    }
+
+    private function _dateBetween(\DateTime $date, \DateTime $dateDebut, \DateTime $dateFin)
+    {
+        $_date = $this->_getDay($date);
+        $_dateDebut = $this->_getDay($dateDebut);
+        $_dateFin = $this->_getDay($dateFin);
+
+        return ($_date->getTimestamp() >= $_dateDebut->getTimestamp() && $_date->getTimestamp() <= $dateFin->getTimestamp());
+    }
+
+    private function _getDay(\DateTime $date) {
+        return new \DateTime($date->format('y') . '-' . $date->format('m') . '-' . $date->format('d'));
     }
 }

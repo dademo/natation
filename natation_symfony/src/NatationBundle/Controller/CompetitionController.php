@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use NatationBundle\Entity\Competition;
 use NatationBundle\Entity\Jugecompetition;
 use NatationBundle\Entity\TypeJuge;
+use NatationBundle\Entity\Personne;
 use NatationAuthBundle\Entity\Utilisateur;
 use NatationBundle\Entity\Equipe;
 use NatationBundle\Entity\Note;
@@ -20,6 +21,7 @@ use NatationBundle\Entity\Note;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -200,7 +202,6 @@ class CompetitionController extends Controller
            
                 return $this->redirectToRoute('show_competition_teams', array('competId' => $competId));
             } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                var_dump($ex->getMessage());
                 $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
             }
         }
@@ -220,34 +221,62 @@ class CompetitionController extends Controller
     {
         $currUser = $this->get('security.token_storage')->getToken()->getUser();
         
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
+
         $jugeCompetition = $this->getDoctrine()
             ->getRepository(JugeCompetition::class)
             ->findOneBy(array(
-                'idUtilisateur' => $currUser
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
             ));
+
+        
 
 
         // Si c'est un juge-arbitre
-        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
-            $equipe = $this->getDoctrine()
-                ->getRepository(Equipe::class)
-                ->find($equipeId);
+        if ($jugeCompetition !== null && $jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
 
-            $equipe->setDebut(new \DateTime('now'));
+            // S'il y a 5 juges et 1 juge-arbitre
+            $nJuge = 0;
+            $nJugearbitre = 0;
+            foreach($equipe->getIdCompetition()->getIdJugecompetition() as $juge) {
+                if($juge->getIdTypejuge()->getNom() == 'Juge') {
+                    $nJuge ++;
+                }
+                
+                if($juge->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+                    $nJugearbitre ++;
+                }
+            }
 
-            try {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($equipe);
-                $entityManager->flush();
-            
+            if($nJuge == 5 && $nJugearbitre == 1) {
+
+                $equipe->setDebut(new \DateTime('now'));
+
+                try {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($equipe);
+                    $entityManager->flush();
+                
+                    return $this->redirectToRoute('show_competition_teams', array(
+                        'competId' => $equipe->getIdCompetition()->getId(),
+                    ));
+                } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                    echo 'Exception inconnue : ' . $ex->getMessage();
+                }
+            }
+            else {
                 return $this->redirectToRoute('show_competition_teams', array(
                     'competId' => $equipe->getIdCompetition()->getId(),
                 ));
-            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                echo 'Exception inconnue : ' . $ex->getMessage();
             }
         } else {
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
         }
     }
 
@@ -258,19 +287,21 @@ class CompetitionController extends Controller
     public function setNotableEquipeCompetitionAction(Request $request, int $equipeId)
     {
         $currUser = $this->get('security.token_storage')->getToken()->getUser();
+
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
         
         $jugeCompetition = $this->getDoctrine()
             ->getRepository(JugeCompetition::class)
             ->findOneBy(array(
-                'idUtilisateur' => $currUser
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
             ));
 
 
         // Si c'est un juge-arbitre
-        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
-            $equipe = $this->getDoctrine()
-                ->getRepository(Equipe::class)
-                ->find($equipeId);
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre' && $equipe->getDebut() !== null) {
 
             $equipe->setNotable(true);
 
@@ -286,7 +317,9 @@ class CompetitionController extends Controller
                 echo 'Exception inconnue : ' . $ex->getMessage();
             }
         } else {
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
         }
     }
 
@@ -299,18 +332,29 @@ class CompetitionController extends Controller
     {
         $currUser = $this->get('security.token_storage')->getToken()->getUser();
         
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+        
         $jugeCompetition = $this->getDoctrine()
             ->getRepository(JugeCompetition::class)
             ->findOneBy(array(
-                'idUtilisateur' => $currUser
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
             ));
+
+        $nNotes = 0;
+
+        // Si les 5 arbitre ont mit une note
+        foreach($equipe->getIdNote() as $note) {
+            if ($note->getNote() !== null) {
+                $nNotes ++;
+            }
+        }
 
 
         // Si c'est un juge-arbitre
-        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
-            $equipe = $this->getDoctrine()
-                ->getRepository(Equipe::class)
-                ->find($equipeId);
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre' && $nNotes == 5) {
 
             $equipe->setVisionnable(true);
 
@@ -326,7 +370,9 @@ class CompetitionController extends Controller
                 echo 'Exception inconnue : ' . $ex->getMessage();
             }
         } else {
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
         }
     }
 
@@ -338,18 +384,20 @@ class CompetitionController extends Controller
     {
         $currUser = $this->get('security.token_storage')->getToken()->getUser();
         
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
         $jugeCompetition = $this->getDoctrine()
             ->getRepository(JugeCompetition::class)
             ->findOneBy(array(
-                'idUtilisateur' => $currUser
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
             ));
 
 
         // Si c'est un juge-arbitre
         if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge') {
-            $equipe = $this->getDoctrine()
-                ->getRepository(Equipe::class)
-                ->find($equipeId);
                 
             $note = $this->getDoctrine()
                 ->getRepository(Note::class)
@@ -369,7 +417,7 @@ class CompetitionController extends Controller
                 ->add('note', NumberType::class, array(
                     'label' => 'Note',
                     'attr' => array(
-                        'min' => 0,
+                        'min' => 0,'returnPageUrl' => $this->generateUrl('all_competitions'),
                         'max' => 100,
                     ),
                     ))
@@ -391,8 +439,6 @@ class CompetitionController extends Controller
                         'competId' => $equipe->getIdCompetition()->getId(),
                     ));
                 } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
-                    var_dump($ex->getMessage());
-                    die();
                     $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
                 }
             }
@@ -402,12 +448,170 @@ class CompetitionController extends Controller
                 'form' => $form->createView(),
                 'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
                     'competId' => $equipe->getIdCompetition()->getId(),
-                )),
+                )),'returnPageUrl' => $this->generateUrl('all_competitions'),
             ));
 
 
         } else {
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
+        }
+    }
+
+    /**
+     * @Route("/compet/show/{equipeId}/note", name="show_juge_note", requirements={"equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function showNotesEquipeCompetitionAction(Request $request, int $equipeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
+        // Si l'équipe est visible, on ne peut changer les notes
+        if($equipe->getVisionnable()) {
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
+        }
+
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
+            ));
+
+        $usedJuge = array();
+
+        // S'il n'y a pas assez de notes, on les crée
+        // Récupération des ids des juges ayant noté
+        foreach($equipe->getIdNote() as $note) {
+            $usedJuge[] = $note->getIdJugecompetition()->getId();
+        }
+        // On compare avec tous les juges et on crée les notes nécéssaires
+        foreach($equipe->getIdCompetition()->getidJugecompetition() as $_jugeCompetition) {
+            if($_jugeCompetition->getIdTypejuge()->getNom() == 'Juge') {
+                if(!in_array($_jugeCompetition->getId(), $usedJuge)) {
+                    $note = new Note();
+                    $note->setIdEquipe($equipe);
+                    $note->setIdJugecompetition($_jugeCompetition);
+
+                    $equipe->addIdNote($note);
+                }
+            }
+        }
+        
+
+        // Si c'est un juge-arbitre
+        if ($jugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            return $this->render('@Natation/Competition/showTeamNotes.html.twig', array(
+                'equipe' => $equipe,
+                'allNotes' => $equipe->getIdNote(),
+                'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
+                        'competId' => $equipe->getIdCompetition()->getId(),
+                    )
+                ),
+            ));
+        } else {
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
+        }
+    }
+    /**
+     * @Route("/compet/show/{equipeId}/{jugeId}/note", name="set_juge_note", requirements={"equipeId"="\d+", "equipeId"="\d+"})
+     * @Security("has_role('ROLE_JUGE')")
+     */
+    public function setNoteEquipeCompetitionAction(Request $request, int $equipeId, int $jugeId)
+    {
+        $currUser = $this->get('security.token_storage')->getToken()->getUser();
+        
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
+        // Si l'équipe est visible, on ne peut changer les notes
+        if($equipe->getVisionnable()) {
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
+        }
+
+        $jugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->find($jugeId);
+
+        $note = $this->getDoctrine()
+            ->getRepository(Note::class)
+            ->findOneBy(array(
+                'idJugecompetition' => $jugeCompetition,
+                'idEquipe' => $equipe,
+            ));
+
+        $currJugeCompetition = $this->getDoctrine()
+            ->getRepository(JugeCompetition::class)
+            ->findOneBy(array(
+                'idUtilisateur' => $currUser,
+                'idCompetition' => $equipe->getIdCompetition(),
+            ));
+
+            
+        if ($currJugeCompetition->getIdTypejuge()->getNom() == 'Juge-arbitre') {
+            $form = $this->createFormBuilder($note)
+                ->add('note', NumberType::class, array('label' => 'Note'))
+                ->add('update', SubmitType::class)
+                ->getForm();
+        
+        
+            $form->handleRequest($request);
+        
+            if ($form->isSubmitted() && $form->isValid()) {
+                $note = $form->getData();
+                
+                /*
+                foreach($note as $_note) {
+                    var_dump($note);
+                }
+
+                if($note[0]->getNote() < 0 || $note[0]->getNote() > 100) {
+                    $form->addError(new FormError('La note est incorrecte. Elle doit être entre 0 et 100'));
+                }*/
+
+                if(is_array($note)) {
+                    // On crée l'objet
+                    $_note = new Note();
+                    $_note->setIdEquipe($equipe);
+                    $_note->setIdJugecompetition($jugeCompetition);
+                    $_note->setNote($note['note']);
+                    $note = $_note;
+                }
+                    
+                try {
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($note);
+                    $entityManager->flush();
+               
+                    return $this->redirectToRoute('show_juge_note', array('equipeId' => $equipe->getId()));
+                } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                    $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
+                }
+            }
+        
+            return $this->render('@Natation/Competition/new.html.twig', array(
+                'form_title' => 'Motification de la note pour le juge ' . $jugeCompetition->getIdUtilisateur()->getPersonne(),
+                'form' => $form->createView(),
+                'returnPageUrl' => $this->generateUrl('show_juge_note', array(
+                    'equipeId' => $equipeId,
+                )),
+            ));
+        } else {
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
         }
     }
 
@@ -417,6 +621,197 @@ class CompetitionController extends Controller
      */
     public function setMembresEquipeCompetitionAction(Request $request, int $equipeId)
     {
+        $equipe = $this->getDoctrine()
+            ->getRepository(Equipe::class)
+            ->find($equipeId);
+
+        $alerts = array();
+
+        if ($request->isMethod('POST')) {
+            $all_id_membresEquipe = json_decode($_POST["all_membres_equipe"], true);
+
+            if($all_id_membresEquipe !== null && is_array($all_id_membresEquipe)) {
+                $all_membres_equipe = $this->getDoctrine()
+                    ->getRepository(Personne::class)
+                    ->findBy(array(
+                        'id' => $all_id_membresEquipe
+                    ));
+
+                    // S'il y a autant de personnes trouvées que de personnes demandées
+                    if(count($all_membres_equipe) == count($all_id_membresEquipe)) {
+                        $equipe->cleanIdPersonne();
+                        // On vérifie qu'ils fassent partie du même club et on ajoute
+                        $lastClubId = null;
+                        foreach($all_membres_equipe as $personne) {
+                            $curr_club = $personne->getClubAt($equipe->getIdCompetition()->getDatecompetition());
+                            if($lastClubId !== null) {
+                                if($lastClubId != $curr_club->getId()) {
+                                    $alerts[] = 'Plusieurs clubs ont été sélectionnés';
+                                }
+                            }
+                            $lastClubId = $curr_club->getId();
+                            $equipe->addIdPersonne($personne);
+                        }
+
+                        // S'il n'y a pas d'erreur
+                        if(count($alerts) == 0) {
+                            try {
+                                $entityManager = $this->getDoctrine()->getManager();
+                                $entityManager->persist($equipe);
+                                $entityManager->flush();
+                        
+                                return $this->redirectToRoute('show_competition_teams', array(
+                                    'competId' => $equipe->getIdCompetition()->getId(),
+                                ));
+                            } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                                $alerts[] = 'Une erreur s\'est produite lors de l\'émission du formulaire';
+                            }
+                        }
+                    } else {
+                        $alerts[] = 'Erreur lors de la lecture du formulaire: Une des personne n\'existe pas';
+                    }
+            } else {
+                $alerts[] = 'Erreur lors de la lecture du formulaire';
+            }
+/*
+            if($juges !== null) {
+                $allJuges = [];
+
+                foreach($juges as $juge) {
+                    // Obtention du juge s'il existe
+                    $newJuge = $this->getDoctrine()
+                        ->getRepository(Jugecompetition::class)
+                        ->findOneBy(array(
+                            'idCompetition' => $competition,
+                                'rang' => $juge['rangJuge']
+                            ));
+                        if($newJuge === NULL) {
+                            $newJuge = new JugeCompetition();
+                            $newJuge->setRang($juge['rangJuge']);
+                            $newJuge->setIdCompetition($competition);
+                        }
+                        $newJuge->setIdTypejuge(
+                            $this->getDoctrine()
+                            ->getRepository(Typejuge::class)
+                            ->findOneBy(array(
+                                'nom' => $juge['typejuge']
+                            ))
+                        );
+                        $newJuge->setIdUtilisateur(
+                            $this->getDoctrine()
+                            ->getRepository(Utilisateur::class)
+                            ->find($juge['idUtilisateur'])
+                        );
+                        $allJuges[] = $newJuge;
+                    }
+    
+                    $competition->setIdJugecompetition($allJuges);
+
+                    try {
+                            
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $entityManager->getConnection()->beginTransaction();
+                        $entityManager->getConnection()->setAutoCommit(false);
+                        // Ajout des nouveaux juges
+                        $entityManager->persist($competition);
+                        $entityManager->flush();
+                        $entityManager->getConnection()->commit();
+                    
+                        return $this->redirectToRoute('show_competition_juges', array(
+                            'competId' => $competId
+                        ));
+                    } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $ex) {
+                        $alerts[] = 'Une valeur est dupliquée ('  .$ex->getMessage() . ')';
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
+                        $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    } catch (\PDOException $ex) {
+                        $alerts[] = 'Exception inconnue : ' . $ex->getMessage();
+                        $this->getDoctrine()->getManager()->getConnection()->rollBack();
+                    }
+                } else {
+                    $alerts[] = 'Erreur lors de la lecture du formulaire';
+                }*/
+        }
+            //https://stackoverflow.com/questions/12862389/symfony2-doctrine-create-custom-sql-query
+        $rawSql = "SELECT personne.id
+        FROM personne
+        -- Club
+        INNER JOIN club_personne
+            ON club_personne.id_personne = personne.id
+        WHERE personne.id NOT IN (
+            SELECT personne.id
+            FROM personne
+            -- Competition; les personnes ne sont pas déjà inscrites
+            INNER JOIN equipe_personne
+                ON equipe_personne.id_personne = personne.id
+            INNER JOIN equipe
+                ON equipe_personne.id_equipe = equipe.id
+            INNER JOIN competition
+                ON competition.id = equipe.id_competition
+            -- Competition
+            WHERE equipe.id_competition = :idCompet
+                AND equipe.id != :idEquipe
+            )
+            -- Club
+            AND (club_personne.dateFinInscription IS NULL
+                OR club_personne.dateFinInscription >= :dateCompet
+                )
+            ";
+
+        $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
+        //$stmt->bindValue(':idCompet', $equipe->getIdCompetition()->getId());
+        //$stmt->bindValue(':dateCompet', date_format($equipe->getIdCompetition()->getDatecompetition(), 'Y-m-d'), \PDO::PARAM_STR);
+        $stmt->execute(array(
+            ':idCompet' => $equipe->getIdCompetition()->getId(),
+            ':idEquipe' => $equipeId,
+            ':dateCompet' => date_format($equipe->getIdCompetition()->getDatecompetition(), 'Y-m-d'),
+        ));
+
+
+        $_all_id_personnes = $stmt->fetchAll();
+
+        $all_id_personnes = array();
+        foreach($_all_id_personnes as $val) {
+            $all_id_personnes[] = $val['id'];
+        }
+
+
+        $allPersonnes = $this->getDoctrine()
+            ->getRepository(Personne::class)
+            ->findBy(array(
+                'id' => $all_id_personnes
+            ));
+
+        $_allEquipeMembres = $equipe->getIdPersonne();
+        $allEquipeMembres = array();
+
+        foreach($_allEquipeMembres as $personne) {
+            $allEquipeMembres[] = $personne->getId();
+        }
+
+        /*
+                $allPersonnes = array();
+
+                foreach($_allPersonnes as $personne) {
+                    if($personne->getCurrIdClubPersonne() !== null && $personne->getCurrIdEquipe() === null) {
+                        $allPersonnes[] = $personne;
+                    }
+                }*/
+
+        return $this->render('@Natation/Competition/setEquipeMembresForm.html.twig', array(
+            'equipe' => $equipe,
+            'alerts' => $alerts,
+            'allPersonnes' => $allPersonnes,
+            'allEquipeMembres' => $allEquipeMembres,
+            'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            )),
+        ));
+
+        
+
         return new Response('OK');
     }
 
@@ -477,16 +872,17 @@ class CompetitionController extends Controller
         
         
                 return $this->render('@Natation/Club/update.html.twig', array(
-                    'form_title' => 'Création d\'un nouveau club',
+                    'form_title' => 'Modification de la pénalité',
                     'form' => $form->createView(),
                     'returnPageUrl' => $this->generateUrl('show_competition_teams', array(
                         'competId' => $equipe->getIdCompetition()->getId(),
                     )),
                 ));
         } else {
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('show_competition_teams', array(
+                'competId' => $equipe->getIdCompetition()->getId(),
+            ));
         }
-        return new Response('OK');
     }
 
     /**
