@@ -54,7 +54,7 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\ManyToMany(targetEntity="TypeUtilisateur")
+     * @ORM\ManyToMany(targetEntity="TypeUtilisateur", fetch="EAGER")
      * @ORM\JoinTable(name="utilisateur_typeutilisateur",
      *                  joinColumns={@ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")},
      *                  inverseJoinColumns={@ORM\JoinColumn(name="id_typeUtilisateur", referencedColumnName="id")}
@@ -65,7 +65,7 @@ class Utilisateur implements UserInterface, AdvancedUserInterface, \Serializable
     /**
      * @var \NatationBundle\Entity\Personne
      *
-     * @ORM\OneToOne(targetEntity="\NatationBundle\Entity\Personne")
+     * @ORM\OneToOne(targetEntity="\NatationBundle\Entity\Personne", fetch="EAGER")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="id_personne", referencedColumnName="id")
      * })

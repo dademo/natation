@@ -392,10 +392,14 @@ class UtilisateurController extends Controller
     {
         $user = new Utilisateur();
 
+        $allPersonnes = $this->getDoctrine()
+            ->getRepository(Personne::class)
+            ->findAll();
+
         $form = $this->createFormBuilder($user)
             ->add('mail', EmailType::class, array('label' => 'New mail address'))
             ->add('mdp', PasswordType::class, array('label' => 'New password'))
-            ->add('personne', EntityType::class, array('label' => 'Person', 'class' => 'NatationBundle:Personne'))
+            ->add('personne', EntityType::class, array('label' => 'Person', 'class' => 'NatationBundle:Personne', 'choices' => $allPersonnes))
             ->add('create', SubmitType::class)
             ->getForm();
 
