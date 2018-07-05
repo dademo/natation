@@ -266,7 +266,7 @@ class ClubController extends Controller
             'form' => $form->createView(),
             'returnPageUrl' => $this->generateUrl(
                 'show_club_membres', array(
-                    'clubId' => $clubPersonne->getIdClub()->getId()
+                    'clubId' => $clubId
                 )
             ),
         ));
@@ -284,7 +284,7 @@ class ClubController extends Controller
             ->find($clubId);
 
         $form = $this->createFormBuilder($club)
-            ->add('idDirigent', EntityType::class, array('label' => 'Nouveau dirigent du club', 'class' => 'NatationBundle:Personne'))
+            ->add('idDirigent', EntityType::class, array('label' => 'New president', 'class' => 'NatationBundle:Personne'))
             ->add('save', SubmitType::class)
             ->getForm();
 
@@ -312,7 +312,7 @@ class ClubController extends Controller
             'form' => $form->createView(),
             'returnPageUrl' => $this->generateUrl(
                 'show_club_membres', array(
-                    'clubId' => $clubPersonne->getIdClub()->getId()
+                    'clubId' => $clubId
                 )
             ),
         ));
@@ -329,7 +329,7 @@ class ClubController extends Controller
             ->find($clubId);
 
         $form = $this->createFormBuilder($club)
-            ->add('idLieu', EntityType::class, array('label' => 'Nouvel emplacement pour le club', 'class' => 'NatationBundle:Lieu'))
+            ->add('idLieu', EntityType::class, array('label' => 'New club location', 'class' => 'NatationBundle:Lieu'))
             ->add('save', SubmitType::class)
             ->getForm();
 
@@ -357,7 +357,7 @@ class ClubController extends Controller
             'form' => $form->createView(),
             'returnPageUrl' => $this->generateUrl(
                 'show_club_membres', array(
-                    'clubId' => $clubPersonne->getIdClub()->getId()
+                    'clubId' => $clubId
                 )
             ),
         ));
