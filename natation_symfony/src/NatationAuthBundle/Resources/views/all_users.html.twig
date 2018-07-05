@@ -31,4 +31,10 @@
     </tbody>
 </table>
 
+
+    {% if is_granted('ROLE_CREATE_COMPET') %}
+        <a href="{{ path('new_user') }}">
+            <button class="btn btn-primary">{{ "Create a new person"|trans }}</button>
+        </a>
+    {% endif %}
 {% endblock %}

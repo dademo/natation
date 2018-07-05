@@ -5,11 +5,10 @@
 {% endblock %}
 
 {% block app_body %}
-    <button> new utilisateur</button>
+    <a href="{{ path('new_user_personne') }}"><button class="btn btn-primary">{{ 'Create a new person'|trans }}</button></a>
     {# FORM #}
     {{ form_start(form) }}
     {{ form_widget(form) }}
     {{ form_end(form) }}
-    <button><a> {{ path('') }}</a></button>
 {% endblock %}
 

@@ -37,8 +37,8 @@ class ClubController extends Controller
     public function allClubsAction()
     {
         $allClubs = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->findAll();
+            ->getRepository(Club::class)
+            ->findAll();
 
         $rawSql = 'SELECT
             SUM(
@@ -61,9 +61,9 @@ class ClubController extends Controller
         $stmt->execute([]);
         $_nAdherents = $stmt->fetchAll();
 
-        
+
         $nAdherents = array();
-        foreach($_nAdherents as $row) {
+        foreach ($_nAdherents as $row) {
             $nAdherents[$row['idclub']] = $row['ninscrits'];
         }
 
@@ -82,23 +82,23 @@ class ClubController extends Controller
         $club = new Club();
 
         $form = $this->createFormBuilder($club)
-        ->add('nom', TextType::class, array('label' => 'Name'))
-        ->add('idDirigent', EntityType::class, array('label' => 'Leader', 'class' => 'NatationBundle:Personne'))
-        ->add('idLieu', EntityType::class, array('label' => 'Location', 'class' => 'NatationBundle:Lieu'))
-        ->add('create', SubmitType::class)
-        ->getForm();
+            ->add('nom', TextType::class, array('label' => 'Name'))
+            ->add('idDirigent', EntityType::class, array('label' => 'Leader', 'class' => 'NatationBundle:Personne'))
+            ->add('idLieu', EntityType::class, array('label' => 'Location', 'class' => 'NatationBundle:Lieu'))
+            ->add('create', SubmitType::class)
+            ->getForm();
 
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $club = $form->getData();
-            
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($club);
                 $entityManager->flush();
-        
+
                 return $this->redirectToRoute('all_clubs');
             } catch (\Doctrine\DBAL\Exception\DriverException $ex) {
                 $form->addError(new FormError('Une erreur s\'est produite lors de l\'émission du formulaire'));
@@ -120,25 +120,25 @@ class ClubController extends Controller
     public function showClubAction($clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->find($clubId);
+            ->getRepository(Club::class)
+            ->find($clubId);
 
 
         $allNotes = $this->getDoctrine()
-        ->getRepository(Note::class)
-        ->findAll();
-/*
-        $rawSql = "SELECT
-            COUNT(*) AS nInscrits,
-            club.id AS idClub
-        FROM club
-        INNER JOIN club_personne
-            ON club_personne.id_club = club.id
-        WHERE (club_personne.dateFinInscription IS NULL
-            OR club_personne.dateFinInscription >= current_date)
-            AND club.id = " . $clubId . "
-        GROUP BY club.id
-        ";*/
+            ->getRepository(Note::class)
+            ->findAll();
+        /*
+                $rawSql = "SELECT
+                    COUNT(*) AS nInscrits,
+                    club.id AS idClub
+                FROM club
+                INNER JOIN club_personne
+                    ON club_personne.id_club = club.id
+                WHERE (club_personne.dateFinInscription IS NULL
+                    OR club_personne.dateFinInscription >= current_date)
+                    AND club.id = " . $clubId . "
+                GROUP BY club.id
+                ";*/
 
         $rawSql = 'SELECT
             SUM(
@@ -161,7 +161,7 @@ class ClubController extends Controller
         $stmt->execute([]);
         //$_nAdherents = $stmt->fetchOne();
 
-        
+
         $nAdherents = $stmt->fetchColumn(0);
 
         return $this->render('@Natation/Club/show.html.twig', array(
@@ -186,8 +186,8 @@ class ClubController extends Controller
                 '>= currentDate'
             )
         ));*/
-        
-        
+
+
         $rawSql = "SELECT
             club_personne.id_personne as idPersonne
         FROM club
@@ -201,16 +201,16 @@ class ClubController extends Controller
         $stmt = $this->getDoctrine()->getConnection()->prepare($rawSql);
         $stmt->execute();
         $_allPersonnes = $stmt->fetchAll();
-        
+
         $tmpAllPersonnes = [];
-        
-        foreach($_allPersonnes as $row) {
+
+        foreach ($_allPersonnes as $row) {
             $tmpAllPersonnes[] = $row['idpersonne'];
         }
-        
+
         $allPersonnes = $this->getDoctrine()
-        ->getRepository(Personne::class)
-        ->findBy(array(
+            ->getRepository(Personne::class)
+            ->findBy(array(
                 'id' => $tmpAllPersonnes
             ));
 
@@ -224,7 +224,7 @@ class ClubController extends Controller
             ),
         ));
     }
-    
+
     /**
      * @Route("/club/set/{clubId}/nom", name="set_club_nom", requirements={"clubId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
@@ -232,8 +232,8 @@ class ClubController extends Controller
     public function setClubNomAction(Request $request, $clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->find($clubId);
+            ->getRepository(Club::class)
+            ->find($clubId);
 
         $form = $this->createFormBuilder($club)
             ->add('nom', TextType::class, array('label' => 'New club name'))
@@ -245,12 +245,12 @@ class ClubController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $form->getData();
-        
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
-    
+
                 return $this->redirectToRoute('show_club', array(
                     'clubId' => $club->getId()
                 ));
@@ -271,8 +271,8 @@ class ClubController extends Controller
             ),
         ));
     }
-    
-    
+
+
     /**
      * @Route("/club/set/{clubId}/dirigent", name="set_club_dirigent", requirements={"clubId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
@@ -280,8 +280,8 @@ class ClubController extends Controller
     public function setClubDirigentAction(Request $request, $clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->find($clubId);
+            ->getRepository(Club::class)
+            ->find($clubId);
 
         $form = $this->createFormBuilder($club)
             ->add('idDirigent', EntityType::class, array('label' => 'Nouveau dirigent du club', 'class' => 'NatationBundle:Personne'))
@@ -293,12 +293,12 @@ class ClubController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $form->getData();
-        
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
-    
+
                 return $this->redirectToRoute('show_club', array(
                     'clubId' => $club->getId()
                 ));
@@ -317,7 +317,7 @@ class ClubController extends Controller
             ),
         ));
     }
-    
+
     /**
      * @Route("/club/set/{clubId}/lieu", name="set_club_lieu", requirements={"clubId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
@@ -325,8 +325,8 @@ class ClubController extends Controller
     public function setClubLieuAction(Request $request, $clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->find($clubId);
+            ->getRepository(Club::class)
+            ->find($clubId);
 
         $form = $this->createFormBuilder($club)
             ->add('idLieu', EntityType::class, array('label' => 'Nouvel emplacement pour le club', 'class' => 'NatationBundle:Lieu'))
@@ -338,12 +338,12 @@ class ClubController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $form->getData();
-        
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
-    
+
                 return $this->redirectToRoute('show_club', array(
                     'clubId' => $club->getId()
                 ));
@@ -363,7 +363,7 @@ class ClubController extends Controller
         ));
     }
 
-    
+
     /**
      * @Route("/personne/set/{personneId}/dateFinInscription", name="set_personne_dateFin", requirements={"clubId"="\d+"})
      * @Security("has_role('ROLE_CREATE_COMPET')")
@@ -371,29 +371,29 @@ class ClubController extends Controller
     public function setPersonneDatefininscription(Request $request, $personneId)
     {
         $personne = $this->getDoctrine()
-        ->getRepository(Personne::class)
-        ->find($personneId);
+            ->getRepository(Personne::class)
+            ->find($personneId);
 
         $clubPersonne = $personne->getCurrIdClubPersonne();
 
-        if(isset($clubPersonne) && $clubPersonne->getDatefininscription() === null) {
+        if (isset($clubPersonne) && $clubPersonne->getDatefininscription() === null) {
 
             $form = $this->createFormBuilder($clubPersonne)
-            ->add('datefininscription', DateType::class, array('label' => 'Fin d\'inscription de la personne'))
-            ->add('save', SubmitType::class)
-            ->getForm();
+                ->add('datefininscription', DateType::class, array('label' => 'Fin d\'inscription de la personne'))
+                ->add('save', SubmitType::class)
+                ->getForm();
 
 
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $clubPersonne = $form->getData();
-            
+
                 try {
                     $entityManager = $this->getDoctrine()->getManager();
                     $entityManager->persist($clubPersonne);
                     $entityManager->flush();
-        
+
                     return $this->redirectToRoute('show_club_membres', array(
                         'clubId' => $clubPersonne->getIdClub()->getId()
                     ));
@@ -426,34 +426,34 @@ class ClubController extends Controller
     public function addClubMembreAction(Request $request, $clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Club::class)
-        ->find($clubId);
+            ->getRepository(Club::class)
+            ->find($clubId);
 
         $clubPersonne = new ClubPersonne();
 
         $clubPersonne->setIdClub($club);
 
         $form = $this->createFormBuilder($clubPersonne)
-        ->add('idPersonne', EntityType::class, array('label' => 'Person', 'class' => 'NatationBundle:Personne'))
-        ->add('dateinscription', DateType::class, array(
-            'label' => 'Begin of registration',
-            'years' => range(date('Y')-1, date('Y')+10),
+            ->add('idPersonne', EntityType::class, array('label' => 'Person', 'class' => 'NatationBundle:Personne'))
+            ->add('dateinscription', DateType::class, array(
+                'label' => 'Begin of registration',
+                'years' => range(date('Y') - 1, date('Y') + 10),
             ))
-        //->add('datefininscription', DateType::class, array('label' => 'End of registration'))
-        ->add('save', SubmitType::class)
-        ->getForm();
+            //->add('datefininscription', DateType::class, array('label' => 'End of registration'))
+            ->add('save', SubmitType::class)
+            ->getForm();
 
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $personne = $form->getData();
-            
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($personne);
                 $entityManager->flush();
-        
+
                 return $this->redirectToRoute('show_club_membres', array(
                     'clubId' => $clubId
                 ));
@@ -484,29 +484,32 @@ class ClubController extends Controller
     public function addPersonneAction(Request $request, $clubId)
     {
         $club = $this->getDoctrine()
-        ->getRepository(Personne::class)
-        ->find($clubId);
+            ->getRepository(Personne::class)
+            ->find($clubId);
 
         $personne = new Personne();
 
         $form = $this->createFormBuilder($personne)
-        ->add('nom', TextType::class, array('label' => 'Last name'))
-        ->add('prenom', TextType::class, array('label' => 'First name'))
-        ->add('datenaissance', DateType::class, array('label' => 'End of registration'))
-        ->add('save', SubmitType::class)
-        ->getForm();
+            ->add('nom', TextType::class, array('label' => 'Last name'))
+            ->add('prenom', TextType::class, array('label' => 'First name'))
+            ->add('datenaissance', DateType::class, array(
+                'label' => 'Born date',
+                'years' => range(date('Y') - 80, date('Y')),
+            ))
+            ->add('save', SubmitType::class)
+            ->getForm();
 
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $personne = $form->getData();
-            
+
             try {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($personne);
                 $entityManager->flush();
-        
+
                 return $this->redirectToRoute('add_club_membre', array(
                     'clubId' => $clubId
                 ));
