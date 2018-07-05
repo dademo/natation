@@ -58,47 +58,6 @@ class UtilisateurController extends Controller
         // Nothing to do
     }
 
-    /**
-     * @Route("/login/testpwd", name="testpwd")
-     */
-    public function testPwdAction()
-    {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-
-        if ($user == 'anon.') {
-            return new Response('Nobody is logged');
-        } else {
-            $encoder = $this->get('security.password_encoder');
-            $pwd = $encoder->encodePassword($user, 'azerty2');
-
-            $user->setPassword($pwd);
-
-            // Saving the user
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
-                
-            return new Response('Ok');
-        }
-    }
-
-    /**
-     * @Route("/login/test", name="login_test")
-     */
-    public function testAction()
-    {
-        $allUsers = $this->getDoctrine()
-            ->getRepository(Utilisateur::class)
-            ->findAll();
-
-        //return new Response('OK');
-        return $this->render(
-            '@NatationAuth/all_users.html.twig',
-            array(
-                'allUsers' => $allUsers
-            )
-        );
-    }
 
     /**
      * @Route("/user/show", name="show_curr_user")
